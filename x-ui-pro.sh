@@ -185,8 +185,8 @@ cat > "/etc/nginx/sites-available/$domain" << EOF
 server {
 	server_tokens off;
 	server_name $domain;
-	listen 127.0.0.1:7443 ssl http2;
-	listen [::1]:7443 ssl http2;
+	listen 7443 ssl http2;
+	listen [::]:7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
@@ -270,8 +270,8 @@ cat > "/etc/nginx/sites-available/$reality_domain" << EOF
 server {
 	server_tokens off;
 	server_name $reality_domain;
-	listen 127.0.0.1:7443 ssl http2;
-	listen [::1]:7443 ssl http2;
+	listen 7443 ssl http2;
+	listen [::]:7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
