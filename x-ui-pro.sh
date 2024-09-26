@@ -9,7 +9,7 @@ echo;msg_inf '           ___    _   _   _  '	;
 msg_inf		 ' \/ __ | |  | __ |_) |_) / \ '	;
 msg_inf		 ' /\    |_| _|_   |   | \ \_/ '	; echo
 ##################################Variables#############################################################
-XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=0;CFALLOW="n"
+XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n"
 Pak=$(type apt &>/dev/null && echo "apt" || echo "yum")
 ##################################Random Port and Path #################################################
 RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
@@ -26,6 +26,7 @@ while [ "$#" -gt 0 ]; do
     -install) INSTALL="$2"; shift 2;;
     -panel) PNLNUM="$2"; shift 2;;
     -subdomain) domain="$2"; shift 2;;
+    -reality_domain) reality_domain="$2"; shift 2;;
     -ONLY_CF_IP_ALLOW) CFALLOW="$2"; shift 2;;
     -uninstall) UNINSTALL="$2"; shift 2;;
     *) shift 1;;
@@ -61,10 +62,26 @@ MainDomain=$(echo "$domain" 2>&1 | sed 's/.*\.\([^.]*\..*\)$/\1/')
 if [[ "${SubDomain}.${MainDomain}" != "${domain}" ]] ; then
 	MainDomain=${domain}
 fi
+
+while true; do	
+	if [[ -n "$reality_domain" ]]; then
+		break
+	fi
+	echo -en "Enter available subdomain for REALITY (sub.domain.tld): " && read reality_domain 
+done
+
+reality_domain=$(echo "$reality_domain" 2>&1 | tr -d '[:space:]' )
+RealitySubDomain=$(echo "$reality_domain" 2>&1 | sed 's/^[^ ]* \|\..*//g')
+RealityMainDomain=$(echo "$reality_domain" 2>&1 | sed 's/.*\.\([^.]*\..*\)$/\1/')
+
+if [[ "${RealitySubDomain}.${RealityMainDomain}" != "${reality_domain}" ]] ; then
+	RealityMainDomain=${reality_domain}
+fi
+
 ###############################Install Packages#########################################################
 if [[ ${INSTALL} == *"y"* ]]; then
 	$Pak -y update
-	$Pak -y install curl nginx certbot python3-certbot-nginx sqlite3 
+	$Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -77,10 +94,16 @@ IP6=$(ip route get 2620:fe::fe 2>&1 | grep -Po -- 'src \K\S*')
 [[ $IP4 =~ $IP4_REGEX ]] || IP4=$(curl -s ipv4.icanhazip.com);
 [[ $IP6 =~ $IP6_REGEX ]] || IP6=$(curl -s ipv6.icanhazip.com);
 ##############################Install SSL###############################################################
-certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email --cert-name "$MainDomain" -d "$domain"
-if [[ ! -d "/etc/letsencrypt/live/${MainDomain}/" ]]; then
+certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$domain"
+if [[ ! -d "/etc/letsencrypt/live/${domain}/" ]]; then
  	systemctl start nginx >/dev/null 2>&1
-	msg_err "$MainDomain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
+	msg_err "$domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
+fi
+
+certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$_domain"
+if [[ ! -d "/etc/letsencrypt/live/${_domain}/" ]]; then
+ 	systemctl start nginx >/dev/null 2>&1
+	msg_err "$_domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
 fi
 ################################# Access to configs only with cloudflare#################################
 rm -f "/etc/nginx/cloudflareips.sh"
@@ -122,20 +145,48 @@ EOF
 fi
 fi
 #################################Nginx Config###########################################################
-cat > "/etc/nginx/sites-available/$MainDomain" << EOF
+mkdir -p /etc/nginx/stream-enabled
+cat > "/etc/nginx/stream-enabled" << EOF
+map $ssl_preread_server_name $sni_name {
+    hostnames;
+    $reality_domain      xray;
+    $domain           www;
+    default              xray;
+}
+
+upstream xray {
+    server 127.0.0.1:8443;
+}
+
+upstream www {
+    server 127.0.0.1:7443;
+}
+
+server {
+    listen          443;
+    proxy_pass      $sni_name;
+    ssl_preread     on;
+}
+
+EOF
+
+echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> my_file.txt
+
+
+cat > "/etc/nginx/sites-available/$domain" << EOF
 server {
 	server_tokens off;
 	server_name $MainDomain *.$MainDomain;
 	listen 80;
-	listen 443 ssl http2;
+	listen 7443 ssl http2;
 	listen [::]:80;
-	listen [::]:443 ssl http2;
+	listen [::]:7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
-	ssl_certificate /etc/letsencrypt/live/$MainDomain/fullchain.pem;
-	ssl_certificate_key /etc/letsencrypt/live/$MainDomain/privkey.pem;
+	ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;
 	if (\$host !~* ^(.+\.)?$MainDomain\$ ){return 444;}
 	if (\$scheme ~* https) {set \$safe 1;}
 	if (\$ssl_server_name !~* ^(.+\.)?$MainDomain\$ ) {set \$safe "\${safe}0"; }
@@ -208,13 +259,101 @@ server {
 	location / { try_files \$uri \$uri/ =404; }
 }
 EOF
+
+cat > "/etc/nginx/sites-available/$reality_domain" << EOF
+server {
+	server_tokens off;
+	server_name $RealityMainDomain *.$RealityMainDomain;
+	listen 80;
+	listen 7443 ssl http2;
+	listen [::]:80;
+	listen [::]:7443 ssl http2;
+	index index.html index.htm index.php index.nginx-debian.html;
+	root /var/www/html/;
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
+	ssl_certificate /etc/letsencrypt/live/$reality_domain/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/$reality_domain/privkey.pem;
+	if (\$host !~* ^(.+\.)?$RealityMainDomain\$ ){return 444;}
+	if (\$scheme ~* https) {set \$safe 1;}
+	if (\$ssl_server_name !~* ^(.+\.)?$RealityMainDomain\$ ) {set \$safe "\${safe}0"; }
+	if (\$safe = 10){return 444;}
+	if (\$request_uri ~ "(\"|'|\`|~|,|:|--|;|%|\\$|&&|\?\?|0x00|0X00|\||\\|\{|\}|\[|\]|<|>|\.\.\.|\.\.\/|\/\/\/)"){set \$hack 1;}
+	error_page 400 401 402 403 500 501 502 503 504 =404 /404;
+	proxy_intercept_errors on;
+	#X-UI Admin Panel
+	location /$RNDSTR/ {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:$PORT;
+		break;
+	}
+ 	#Subscription Path (simple/encode)
+        location ~ ^/(?<fwdport>\d+)/sub/(?<fwdpath>.*)\$ {
+                if (\$hack = 1) {return 404;}
+                proxy_redirect off;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_pass http://127.0.0.1:\$fwdport/sub/\$fwdpath\$is_args\$args;
+                break;
+        }
+	#Subscription Path (json/fragment)
+        location ~ ^/(?<fwdport>\d+)/json/(?<fwdpath>.*)\$ {
+                if (\$hack = 1) {return 404;}
+                proxy_redirect off;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_pass http://127.0.0.1:\$fwdport/json/\$fwdpath\$is_args\$args;
+                break;
+        }
+ 	#Xray Config Path
+	location ~ ^/(?<fwdport>\d+)/(?<fwdpath>.*)\$ {
+	$CF_IP	if (\$cloudflare_ip != 1) {return 404;}
+		if (\$hack = 1) {return 404;}
+		client_max_body_size 0;
+		client_body_timeout 1d;
+		grpc_read_timeout 1d;
+		grpc_socket_keepalive on;
+		proxy_read_timeout 1d;
+		proxy_http_version 1.1;
+		proxy_buffering off;
+		proxy_request_buffering off;
+		proxy_socket_keepalive on;
+		proxy_set_header Upgrade \$http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		#proxy_set_header CF-IPCountry \$http_cf_ipcountry;
+		#proxy_set_header CF-IP \$realip_remote_addr;
+		if (\$content_type ~* "GRPC") {
+			grpc_pass grpc://127.0.0.1:\$fwdport\$is_args\$args;
+			break;
+		}
+		if (\$http_upgrade ~* "(WEBSOCKET|WS)") {
+			proxy_pass http://127.0.0.1:\$fwdport\$is_args\$args;
+			break;
+	        }
+		if (\$request_method ~* ^(PUT|POST|GET)\$) {
+			proxy_pass http://127.0.0.1:\$fwdport\$is_args\$args;
+			break;
+		}
+	}
+	location / { try_files \$uri \$uri/ =404; }
+}
+EOF
 ##################################Check Nginx status####################################################
-if [[ -f "/etc/nginx/sites-available/$MainDomain" ]]; then
+if [[ -f "/etc/nginx/sites-available/$domain" ]]; then
 	unlink "/etc/nginx/sites-enabled/default" >/dev/null 2>&1
 	rm -f "/etc/nginx/sites-enabled/default" "/etc/nginx/sites-available/default"
-	ln -s "/etc/nginx/sites-available/$MainDomain" "/etc/nginx/sites-enabled/" 2>/dev/null
+	ln -s "/etc/nginx/sites-available/$domain" "/etc/nginx/sites-enabled/" 2>/dev/null
+        ln -s "/etc/nginx/sites-available/$reality_domain" "/etc/nginx/sites-enabled/" 2>/dev/null
 else
-	msg_err "$MainDomain nginx config not exist!" && exit 1
+	msg_err "$domain nginx config not exist!" && exit 1
 fi
 
 if [[ $(nginx -t 2>&1 | grep -o 'successful') != "successful" ]]; then
@@ -252,6 +391,11 @@ else
 	fi
 	x-ui restart
 fi
+######################install_fake_site#################################################################
+
+sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/randomfakehtml.sh)"
+
+
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
