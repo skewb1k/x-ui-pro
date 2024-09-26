@@ -146,7 +146,7 @@ fi
 fi
 #################################Nginx Config###########################################################
 mkdir -p /etc/nginx/stream-enabled
-cat > "/etc/nginx/stream-enabled" << EOF
+cat > "/etc/nginx/stream-enabled/stream.conf" << EOF
 map $ssl_preread_server_name $sni_name {
     hostnames;
     $reality_domain      xray;
