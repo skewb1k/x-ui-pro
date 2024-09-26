@@ -356,6 +356,7 @@ if [[ -f "/etc/nginx/sites-available/$domain" ]]; then
 	rm -f "/etc/nginx/sites-enabled/default" "/etc/nginx/sites-available/default"
 	ln -s "/etc/nginx/sites-available/$domain" "/etc/nginx/sites-enabled/" 2>/dev/null
         ln -s "/etc/nginx/sites-available/$reality_domain" "/etc/nginx/sites-enabled/" 2>/dev/null
+	ln -s "/etc/nginx/sites-available/80.conf" "/etc/nginx/sites-enabled/" 2>/dev/null
 else
 	msg_err "$domain nginx config not exist!" && exit 1
 fi
