@@ -170,7 +170,7 @@ server {
 
 EOF
 
-echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> my_file.txt
+echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
 
 
 cat > "/etc/nginx/sites-available/$domain" << EOF
