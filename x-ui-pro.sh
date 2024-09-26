@@ -100,7 +100,7 @@ if [[ ! -d "/etc/letsencrypt/live/${domain}/" ]]; then
 	msg_err "$domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
 fi
 
-certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$_domain"
+certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$reality_domain"
 if [[ ! -d "/etc/letsencrypt/live/${_domain}/" ]]; then
  	systemctl start nginx >/dev/null 2>&1
 	msg_err "$_domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
