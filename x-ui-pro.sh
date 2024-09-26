@@ -177,6 +177,14 @@ EOF
 
 echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
 
+cat > "/etc/nginx/sites-available/80.conf" << EOF
+server {
+    listen 80;
+    server_name $domain $reality_domain;
+    return 301 https://\$host\$request_uri;
+}
+EOF
+
 
 cat > "/etc/nginx/sites-available/$domain" << EOF
 server {
