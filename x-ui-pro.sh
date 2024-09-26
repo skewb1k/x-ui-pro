@@ -147,7 +147,7 @@ fi
 #################################Nginx Config###########################################################
 mkdir -p /etc/nginx/stream-enabled
 cat > "/etc/nginx/stream-enabled/stream.conf" << EOF
-map $ssl_preread_server_name $sni_name {
+map \$ssl_preread_server_name \$sni_name {
     hostnames;
     $reality_domain      xray;
     $domain           www;
@@ -167,6 +167,11 @@ server {
     proxy_pass      $sni_name;
     ssl_preread     on;
 }
+server {
+    listen 80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;    
+}
 
 EOF
 
@@ -176,11 +181,9 @@ echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.
 cat > "/etc/nginx/sites-available/$domain" << EOF
 server {
 	server_tokens off;
-	server_name $MainDomain *.$MainDomain;
-	listen 80;
-	listen 7443 ssl http2;
-	listen [::]:80;
-	listen [::]:7443 ssl http2;
+	server_name $domain;
+	listen 127.0.0.1:7443 ssl http2;
+	listen [::1]:7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
@@ -263,11 +266,9 @@ EOF
 cat > "/etc/nginx/sites-available/$reality_domain" << EOF
 server {
 	server_tokens off;
-	server_name $RealityMainDomain *.$RealityMainDomain;
-	listen 80;
-	listen 7443 ssl http2;
-	listen [::]:80;
-	listen [::]:7443 ssl http2;
+	server_name $reality_domain;
+	listen 127.0.0.1:7443 ssl http2;
+	listen [::1]:7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
