@@ -164,7 +164,7 @@ upstream www {
 
 server {
     listen          443;
-    proxy_pass      $sni_name;
+    proxy_pass      \$sni_name;
     ssl_preread     on;
 }
 server {
