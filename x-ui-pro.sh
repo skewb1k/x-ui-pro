@@ -101,9 +101,9 @@ if [[ ! -d "/etc/letsencrypt/live/${domain}/" ]]; then
 fi
 
 certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$reality_domain"
-if [[ ! -d "/etc/letsencrypt/live/${_domain}/" ]]; then
+if [[ ! -d "/etc/letsencrypt/live/${reality_domain}/" ]]; then
  	systemctl start nginx >/dev/null 2>&1
-	msg_err "$_domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
+	msg_err "$reality_domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
 fi
 ################################# Access to configs only with cloudflare#################################
 rm -f "/etc/nginx/cloudflareips.sh"
