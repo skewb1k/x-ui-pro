@@ -421,7 +421,7 @@ if systemctl is-active --quiet x-ui; then clear
 		msg_inf "IPv6: http://[$IP6]:$PORT/$RNDSTR/"
 	fi
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-	msg_inf "X-UI Secure Panel: https://${domain}/${RNDSTR}\n"
+	msg_inf "X-UI Secure Panel: https://${domain}/${RNDSTR}/\n"
  	echo -n "Username:  " && sqlite3 $XUIDB 'SELECT "username" FROM users;'
 	echo -n "Password:  " && sqlite3 $XUIDB 'SELECT "password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
