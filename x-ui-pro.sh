@@ -209,6 +209,14 @@ server {
 		proxy_pass http://127.0.0.1:$PORT;
 		break;
 	}
+        location /$RNDSTR {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:$PORT;
+		break;
+	}
  	#Subscription Path (simple/encode)
         location ~ ^/(?<fwdport>\d+)/sub/(?<fwdpath>.*)\$ {
                 if (\$hack = 1) {return 404;}
