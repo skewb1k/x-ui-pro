@@ -8,7 +8,7 @@
 - Random 150+ fake template!
 - Linux Debian/Ubuntu!
   >
-  > **You need TWO domains or subdomain**
+  > **You need TWO domains or subdomains**
   > 1. For panel and WebSocket/GRPC/HttpUgrade/SplitHttp
   > 2. For REALITY destination
   >   
