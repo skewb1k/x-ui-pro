@@ -37,8 +37,8 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/
 ![](https://github.com/mozaroc/x-ui-pro/blob/master/media/reality.png?raw=true)
 
 ## Enable Subscription :link:
-#### XUI Panel > Panel Setting > Subscription > Enable Service (Don't change /sub/ /json/)
-#### then scroll down to Reverse Proxy URI  add address https://YOUR_PANEL_DOMAIN/SUBSCRIPTIONS_PORT/sub
+#### XUI Panel > Panel Setting > Subscription > Enable Service (Don't change /sub/ /json/ do not add certs)
+#### then scroll down to Reverse Proxy URI and add address https://YOUR_PANEL_DOMAIN/SUBSCRIPTIONS_PORT/sub
 #### 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 Test ALL
