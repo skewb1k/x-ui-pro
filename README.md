@@ -1,37 +1,30 @@
-## x-ui-pro (x-ui + warp + nginx) :octocat:	:open_file_folder:	
+## x-ui-pro (x-ui + warp + nginx) modification of https://github.com/GFW4Fun/x-ui-pro for REALITY
 - Auto Installation (lightweight)
 - Auto SSL renewal / Daily reload Nginx X-ui
-- Handle **WebSocket/GRPC/HttpUgrade/SplitHttp** via **nginx**.
+- Handle **REALITY** and **WebSocket/GRPC/HttpUgrade/SplitHttp** via **nginx**.
 - Multi-user and config via port **443**
-- Install multiple domains with one server/panel
 - More security and low detection with nginx
-- Compatible with Cloudflare
+- Compatible with Cloudflare (only for WebSocket/GRPC/HttpUgrade/SplitHttp)
 - Random 150+ fake template!
 - Linux Debian/Ubuntu!
+  >
+  > **You need TWO domains or subdomain**
+  > 1. For panel and WebSocket/GRPC/HttpUgrade/SplitHttp
+  > 2. For REALITY destination
+  >   
   
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 
-**Install X-UI-PRO**:dvd::package:
+**Install X-UI-PRO**
 
 ```
-sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/x-ui-pro.sh) -install yes -panel 0 -ONLY_CF_IP_ALLOW no"
+sudo su -c "bash <(wget -qO- https://github.com/mozaroc/x-ui-pro/raw/refs/heads/master/x-ui-pro.sh) -install yes -panel 1 -ONLY_CF_IP_ALLOW no"
 ```
-> 
-> Recommended -ONLY_CF_IP_ALLOW yes + (Cloudflare<img src="https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/media/cdnon.png" width="34">TURN ON) + SSL/TLS > Full
->
-> Cloudflare > yourDomain > Network > gRPC <img src="https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/media/TURNON.png" width="28">
-> ##
-> SSL Support (yourdomain.com, *.yourdomain.com) for new subdomain, just add a new record A,AAAA[IP] in domain dns management! no need to reinstall the
-panel!
 > 
 > Do not change SubDomain for renew SSL❗
 > ##
-> -panel (0=alireza 1=MHSanaei 2=FranzKafkaYu)
+> panel (0=alireza 1=MHSanaei 2=FranzKafkaYu)
 > 
-**Random Fake HTMLSite**:earth_asia:	
-```
-sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/randomfakehtml.sh)"
-```
 
 **Uninstall X-UI-PRO**:x:
 ```
