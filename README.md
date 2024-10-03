@@ -1,4 +1,4 @@
-## x-ui-pro (x-ui + warp + nginx) modification of https://github.com/GFW4Fun/x-ui-pro for REALITY
+## x-ui-pro (x-ui + nginx) modification of https://github.com/GFW4Fun/x-ui-pro for REALITY
 - Auto Installation (lightweight)
 - Auto SSL renewal / Daily reload Nginx X-ui
 - Handle **REALITY** and **WebSocket/GRPC/HttpUgrade/SplitHttp** via **nginx**.
@@ -48,3 +48,4 @@ apt update && apt install ufw
 ufw reset && ufw allow ssh && ufw allow ftp && ufw allow http && ufw allow https
 ufw enable && ufw reload && ufw status
 ```
+For vless over websocket configuration reffer https://github.com/GFW4Fun/x-ui-pro/blob/master/README.md
