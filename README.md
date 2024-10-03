@@ -12,7 +12,7 @@
   > 1. For panel and WebSocket/GRPC/HttpUgrade/SplitHttp
   > 2. For REALITY destination
   >   
-  
+  RU instruction - https://scarce-hole-1e2.notion.site/3X-UI-pro-with-REALITY-panel-and-inbaunds-on-port-443-10d1666462e48085be0fee4c136ce417
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 
 **Install X-UI-PRO**
