@@ -163,7 +163,6 @@ upstream www {
 }
 
 server {
-    set_real_ip_from unix:;
     listen          443;
     proxy_pass      \$sni_name;
     ssl_preread     on;
