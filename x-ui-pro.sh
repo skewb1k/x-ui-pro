@@ -163,6 +163,8 @@ upstream www {
 }
 
 server {
+    proxy_protocol on;
+    set_real_ip_from unix:;
     listen          443;
     proxy_pass      \$sni_name;
     ssl_preread     on;
@@ -185,8 +187,8 @@ cat > "/etc/nginx/sites-available/$domain" << EOF
 server {
 	server_tokens off;
 	server_name $domain;
-	listen 7443 ssl http2;
-	listen [::]:7443 ssl http2;
+	listen 7443 ssl http2 proxy_protocol;
+	listen [::]:7443 ssl http2 proxy_protocol;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
@@ -278,8 +280,8 @@ cat > "/etc/nginx/sites-available/$reality_domain" << EOF
 server {
 	server_tokens off;
 	server_name $reality_domain;
-	listen 7443 ssl http2;
-	listen [::]:7443 ssl http2;
+	listen 9443 ssl http2;
+	listen [::]:9443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
