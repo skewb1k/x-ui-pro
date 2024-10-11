@@ -95,13 +95,13 @@ IP6=$(ip route get 2620:fe::fe 2>&1 | grep -Po -- 'src \K\S*')
 [[ $IP4 =~ $IP4_REGEX ]] || IP4=$(curl -s ipv4.icanhazip.com);
 [[ $IP6 =~ $IP6_REGEX ]] || IP6=$(curl -s ipv6.icanhazip.com);
 ##############################Install SSL###############################################################
-certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$domain"
+certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email -d "$domain"
 if [[ ! -d "/etc/letsencrypt/live/${domain}/" ]]; then
  	systemctl start nginx >/dev/null 2>&1
 	msg_err "$domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
 fi
 
-certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email -d "$reality_domain"
+certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email -d "$reality_domain"
 if [[ ! -d "/etc/letsencrypt/live/${reality_domain}/" ]]; then
  	systemctl start nginx >/dev/null 2>&1
 	msg_err "$reality_domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
@@ -173,7 +173,9 @@ server {
 
 EOF
 
-echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
+grep -xqFR "stream { include /etc/nginx/stream-enabled/*.conf; }" /etc/nginx/* ||echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
+grep -xqFR "load_module modules/ngx_stream_module.so;" /etc/nginx/* || sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_module.so; /' /etc/nginx/nginx.conf
+grep -xqFR "load_module modules/ngx_stream_geoip2_module.so;" /etc/nginx* || sed -i '2s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_geoip2_module.so; /' /etc/nginx/nginx.conf
 
 cat > "/etc/nginx/sites-available/80.conf" << EOF
 server {
