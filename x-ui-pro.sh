@@ -79,6 +79,7 @@ if [[ "${RealitySubDomain}.${RealityMainDomain}" != "${reality_domain}" ]] ; the
 fi
 
 ###############################Install Packages#########################################################
+ufw disable
 if [[ ${INSTALL} == *"y"* ]]; then
 	$Pak -y update
 	$Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 
