@@ -34,7 +34,7 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/
 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Server Configuration :wrench:🐧⚙️
-![](https://github.com/mozaroc/x-ui-pro/blob/master/media/reality.png?raw=true)
+![](https://github.com/mozaroc/x-ui-pro/blob/master/media/new_screen_old.png?raw=true)
 
 ## Enable Subscription :link:
 #### XUI Panel > Panel Setting > Subscription > Enable Service (Don't change /sub/ /json/ do not add certs)
