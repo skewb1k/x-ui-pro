@@ -176,7 +176,8 @@ EOF
 grep -xqFR "stream { include /etc/nginx/stream-enabled/*.conf; }" /etc/nginx/* ||echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
 grep -xqFR "load_module modules/ngx_stream_module.so;" /etc/nginx/* || sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_module.so; /' /etc/nginx/nginx.conf
 grep -xqFR "load_module modules/ngx_stream_geoip2_module.so;" /etc/nginx* || sed -i '2s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_geoip2_module.so; /' /etc/nginx/nginx.conf
-
+grep -xqFR "worker_rlimit_nofile 16384;" /etc/nginx/* ||echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
+sed -i "/worker_connections/c\worker_connections=4096;" /etc/nginx/nginx.conf
 cat > "/etc/nginx/sites-available/80.conf" << EOF
 server {
     listen 80;
@@ -409,6 +410,28 @@ else
 	fi
 	x-ui restart
 fi
+
+######################enable bbr and tune system########################################################
+apt-get install -yqq --no-install-recommends ca-certificates
+echo "net.core.default_qdisc=fq" | tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control=bbr" | tee -a /etc/sysctl.conf
+echo "fs.file-max=2097152" | tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_timestamps = 1" | tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_sack = 1" | tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_window_scaling = 1" | tee -a /etc/sysctl.conf
+echo "net.core.rmem_max = 16777216" | tee -a /etc/sysctl.conf
+echo "net.core.wmem_max = 16777216" | tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_rmem = 4096 87380 16777216" | tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_wmem = 4096 65536 16777216" | tee -a /etc/sysctl.conf
+
+sysctl -p
+
+
+
+
+
+
+
 ######################install_fake_site#################################################################
 
 sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/randomfakehtml.sh)"
