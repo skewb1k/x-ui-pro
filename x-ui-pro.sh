@@ -26,7 +26,7 @@ check_free() {
 make_port() {
 	while true; do
 		PORT=$(get_port)
-		if ! is_port_free $PORT; then 
+		if ! check_free $PORT; then 
 			echo $PORT
 			break
 		fi
