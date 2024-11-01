@@ -339,7 +339,7 @@ EOF
 cat > "/etc/nginx/sites-available/$reality_domain" << EOF
 server {
 	server_tokens off;
-	server_name $domain;
+	server_name $reality_domain;
 	listen 9443 ssl http2 proxy_protocol;
 	listen [::]:9443 ssl http2 proxy_protocol;
 	index index.html index.htm index.php index.nginx-debian.html;
@@ -467,6 +467,10 @@ fi
 ##############################generate uri's###########################################################
 sub_uri=https://${domain}/${sub_path}/
 json_uri=https://${domain}/${json_path}/
+##############################generate keys###########################################################
+/usr/local/x-ui/bin/xray-linux-amd64 x25519 | awk 'BEGIN{ FPAT="[^: ]+"} { print $3 }' | while read private_key public_key; do echo $private_key; echo $public_key; done
+
+
 
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
@@ -512,6 +516,73 @@ if [[ -f $XUIDB ]]; then
 	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonMux",  '');
              INSERT INTO "settings" ("key", "value") VALUES ("subJsonRules",  '');
 	     INSERT INTO "settings" ("key", "value") VALUES ("datepicker",  'gregorian');
+      
+             INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
+             '1',
+	     '0',
+             '0',
+	     '0',
+             'first',
+	     '1',
+             '0',
+	     '',
+             '8443',
+	     'vless',
+             '',
+	     '{
+  "network": "tcp",
+  "security": "reality",
+  "externalProxy": [
+    {
+      "forceTls": "same",
+      "dest": "${domain}",
+      "port": 443,
+      "remark": ""
+    }
+  ],
+  "realitySettings": {
+    "show": false,
+    "xver": 0,
+    "dest": "$reality_domain:9443",
+    "serverNames": [
+      "$reality_domain"
+    ],
+    "privateKey": "$private_key",
+    "minClient": "",
+    "maxClient": "",
+    "maxTimediff": 0,
+    "shortIds": [
+      "3288e389",
+      "8f5b86b2d9",
+      "1fc0",
+      "2448470d74af",
+      "4b",
+      "69280a75544c45",
+      "40b2a3",
+      "7c105c00c2112770"
+    ],
+    "settings": {
+      "publicKey": "$public_key",
+      "fingerprint": "random",
+      "serverName": "",
+      "spiderX": "/"
+    }
+  },
+  "tcpSettings": {
+    "acceptProxyProtocol": true,
+    "header": {
+      "type": "none"
+    }
+  }
+}',
+             '',
+	     );
+	     
+
+
+
+
+           
              
 EOF
 else
