@@ -474,11 +474,45 @@ if [[ -f $XUIDB ]]; then
 	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE id = 1;
              UPDATE settings SET value = '/${panel_path}/' WHERE id = 2;
-             UPDATE settings SET value = '${sub_port}' WHERE id = 28;
-             UPDATE settings SET value = '/${sub_path}/' WHERE id = 29;
-             UPDATE settings SET value = '${sub_uri}' WHERE id = 36;
-             UPDATE settings SET value = '/${json_path}/' WHERE id = 37;
-             UPDATE settings SET value = '${json_uri}' WHERE id = 38;
+             INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subURI",  '${sub_uri}');
+             INSERT INTO "settings" ("key", "value") VALUES ("subJsonPath",  '${json_path}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonURI",  '${json_uri}');
+             INSERT INTO "settings" ("key", "value") VALUES ("subEnable",  'true');
+             INSERT INTO "settings" ("key", "value") VALUES ("webListen",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("webDomain",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("webCertFile",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("webKeyFile",  '');
+      	     INSERT INTO "settings" ("key", "value") VALUES ("sessionMaxAge",  '60');
+             INSERT INTO "settings" ("key", "value") VALUES ("pageSize",  '50');
+             INSERT INTO "settings" ("key", "value") VALUES ("expireDiff",  '0');
+             INSERT INTO "settings" ("key", "value") VALUES ("trafficDiff",  '0');
+             INSERT INTO "settings" ("key", "value") VALUES ("remarkModel",  '-ieo');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotEnable",  'false');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotToken",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotProxy",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotAPIServer",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("tgBotChatId",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgRunTime",  '@daily');
+	     INSERT INTO "settings" ("key", "value") VALUES ("tgBotBackup",  'false');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotLoginNotify",  'true');
+	     INSERT INTO "settings" ("key", "value") VALUES ("tgCpu",  '80');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgLang",  'en-US');
+	     INSERT INTO "settings" ("key", "value") VALUES ("timeLocation",  'Eorupe/Moscow');
+             INSERT INTO "settings" ("key", "value") VALUES ("secretEnable",  'false');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subDomain",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subCertFile",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subKeyFile",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subUpdates",  '12');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subEncrypt",  'true');
+             INSERT INTO "settings" ("key", "value") VALUES ("subShowInfo",  'true');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonFragment",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subJsonNoises",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonMux",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subJsonRules",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("datepicker",  'gregorian');
+             
 EOF
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;
