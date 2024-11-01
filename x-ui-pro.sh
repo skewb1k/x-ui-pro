@@ -61,9 +61,7 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-##############################generate uri's###########################################################
-sub_uri=https://${domain}/${sub_path}/
-json_uri=https://${domain}/${json_path}/
+
 ##############################Uninstall#################################################################
 UNINSTALL_XUI(){
 	printf 'y\n' | x-ui uninstall
@@ -466,7 +464,9 @@ else
 fi
 
 
-
+##############################generate uri's###########################################################
+sub_uri=https://${domain}/${sub_path}/
+json_uri=https://${domain}/${json_path}/
 
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
