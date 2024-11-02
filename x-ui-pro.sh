@@ -532,7 +532,7 @@ if [[ -f $XUIDB ]]; then
 	     '',
              '8443',
 	     'vless',
-             '  "clients": [
+             '{"clients": [
     {
       "id": "${client_id}",
       "flow": "xtls-rprx-vision",
