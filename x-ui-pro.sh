@@ -468,13 +468,13 @@ fi
 sub_uri=https://${domain}/${sub_path}/
 json_uri=https://${domain}/${json_path}/
 ##############################generate keys###########################################################
-/usr/local/x-ui/bin/xray-linux-amd64 x25519 | awk 'BEGIN{ FPAT="[^: ]+"} { print $3 }' | while read private_key public_key; do echo $private_key; echo $public_key; done
 shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8))
 
 
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
 if [[ -f $XUIDB ]]; then
+        /usr/local/x-ui/bin/xray-linux-amd64 x25519 | awk 'BEGIN{ FPAT="[^: ]+"} { print $3 }' | while read private_key public_key; do echo $private_key; echo $public_key; done
 	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE id = 1;
              UPDATE settings SET value = '/${panel_path}/' WHERE id = 2;
