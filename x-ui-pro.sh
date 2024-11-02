@@ -341,8 +341,8 @@ cat > "/etc/nginx/sites-available/$reality_domain" << EOF
 server {
 	server_tokens off;
 	server_name $reality_domain;
-	listen 9443 ssl http2 proxy_protocol;
-	listen [::]:9443 ssl http2 proxy_protocol;
+	listen 9443 ssl http2;
+	listen [::]:9443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
