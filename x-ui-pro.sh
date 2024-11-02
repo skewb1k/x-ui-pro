@@ -347,8 +347,8 @@ server {
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
-	ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;
-	ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;
+	ssl_certificate /etc/letsencrypt/live/$reality_domain/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/$reality_domain/privkey.pem;
 	if (\$host !~* ^(.+\.)?$MainDomain\$ ){return 444;}
 	if (\$scheme ~* https) {set \$safe 1;}
 	if (\$ssl_server_name !~* ^(.+\.)?$MainDomain\$ ) {set \$safe "\${safe}0"; }
