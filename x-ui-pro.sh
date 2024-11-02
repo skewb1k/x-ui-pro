@@ -479,6 +479,7 @@ if [[ -f $XUIDB ]]; then
         var2=($var1)
         private_key=${var2[2]}
         public_key=${var2[5]}
+	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
        	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE id = 1;
              UPDATE settings SET value = '/${panel_path}/' WHERE id = 2;
@@ -532,7 +533,23 @@ if [[ -f $XUIDB ]]; then
 	     '',
              '8443',
 	     'vless',
-             '',
+             '  "clients": [
+    {
+      "id": "${client_id}",
+      "flow": "xtls-rprx-vision",
+      "email": "first",
+      "limitIp": 0,
+      "totalGB": 0,
+      "expiryTime": 0,
+      "enable": true,
+      "tgId": "",
+      "subId": "first",
+      "reset": 0
+    }
+  ],
+  "decryption": "none",
+  "fallbacks": []
+}',
 	     '{
   "network": "tcp",
   "security": "reality",
