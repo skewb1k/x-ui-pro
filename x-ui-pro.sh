@@ -473,8 +473,7 @@ var1=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519)
 var2=($var1)
 private_key=${var2[2]}
 public_key= ${var2[5]}
-echo ${private_key}
-echo ${public_key}
+echo ${private_key} > install.log
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
 if [[ -f $XUIDB ]]; then
