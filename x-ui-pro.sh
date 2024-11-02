@@ -469,7 +469,7 @@ sub_uri=https://${domain}/${sub_path}/
 json_uri=https://${domain}/${json_path}/
 ##############################generate keys###########################################################
 /usr/local/x-ui/bin/xray-linux-amd64 x25519 | awk 'BEGIN{ FPAT="[^: ]+"} { print $3 }' | while read private_key public_key; do echo $private_key; echo $public_key; done
-
+shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8))
 
 
 ########################################Update X-UI Port/Path for first INSTALL#########################
@@ -552,14 +552,14 @@ if [[ -f $XUIDB ]]; then
     "maxClient": "",
     "maxTimediff": 0,
     "shortIds": [
-      "3288e389",
-      "8f5b86b2d9",
-      "1fc0",
-      "2448470d74af",
-      "4b",
-      "69280a75544c45",
-      "40b2a3",
-      "7c105c00c2112770"
+      "${shor[0]}",
+      "${shor[1]}",
+      "${shor[2]}",
+      "${shor[3]}",
+      "${shor[4]}",
+      "${shor[5]}",
+      "${shor[6]}",
+      "${shor[7]}"
     ],
     "settings": {
       "publicKey": "$public_key",
@@ -575,15 +575,24 @@ if [[ -f $XUIDB ]]; then
     }
   }
 }',
-             '',
+             'inbound-8443',
+	     '{
+  "enabled": false,
+  "destOverride": [
+    "http",
+    "tls",
+    "quic",
+    "fakedns"
+  ],
+  "metadataOnly": false,
+  "routeOnly": false
+}',
+'{
+  "strategy": "always",
+  "refresh": 5,
+  "concurrency": 3
+}'
 	     );
-	     
-
-
-
-
-           
-             
 EOF
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;
