@@ -434,7 +434,7 @@ sysctl -p
 
 ######################install_fake_site#################################################################
 
-sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/randomfakehtml.sh)"
+sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/refs/heads/master/randomfakehtml.sh)"
 
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
