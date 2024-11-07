@@ -11,11 +11,14 @@ msg_inf		 ' /\    |_| _|_   |   | \ \_/ '	; echo
 ##################################Variables#############################################################
 XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n"
 Pak=$(type apt &>/dev/null && echo "apt" || echo "yum")
-
-rm -rf /etc/x-ui/x-ui.db
+systemctl stop x-ui
+rm -rf /etc/systemd/system/x-ui.service
+rm -rf /usr/local/x-ui
+rm -rf /etc/x-ui
 rm -rf /etc/nginx/sites-enabled/*
 rm -rf /etc/nginx/sites-available/*
 rm -rf /etc/nginx/stream-enabled/*
+
 
 ##################################generate ports and paths#############################################################
 get_port() {
@@ -484,6 +487,8 @@ if [[ -f $XUIDB ]]; then
         public_key=${var2[5]}
 	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
        	sqlite3 $XUIDB <<EOF
+	     INSERT INTO "settings" ("key", "value") VALUES ("webPort",  '${panel_port}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("webBasePath",  '/${panel_path}/');
              UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
              INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
@@ -527,7 +532,7 @@ if [[ -f $XUIDB ]]; then
       
              INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
              '1',
-	     '0',
+	     '0',/etc/systemd/system/x-ui.service
              '0',
 	     '0',
              'first',
