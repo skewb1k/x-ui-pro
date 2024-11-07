@@ -188,8 +188,8 @@ mkdir -p /etc/nginx/stream-enabled
 cat > "/etc/nginx/stream-enabled/stream.conf" << EOF
 map \$ssl_preread_server_name \$sni_name {
     hostnames;
-    $reality_domain      xray;
-    $domain           www;
+    ${reality_domain}      xray;
+    ${domain}           www;
     default              xray;
 }
 
@@ -219,16 +219,16 @@ sed -i "/worker_connections/c\worker_connections 4096;" /etc/nginx/nginx.conf
 cat > "/etc/nginx/sites-available/80.conf" << EOF
 server {
     listen 80;
-    server_name $domain $reality_domain;
+    server_name ${domain} ${reality_domain};
     return 301 https://\$host\$request_uri;
 }
 EOF
 
 
-cat > "/etc/nginx/sites-available/$domain" << EOF
+cat > "/etc/nginx/sites-available/${domain}" << EOF
 server {
 	server_tokens off;
-	server_name $domain;
+	server_name ${domain};
 	listen 7443 ssl http2 proxy_protocol;
 	listen [::]:7443 ssl http2 proxy_protocol;
 	index index.html index.htm index.php index.nginx-debian.html;
@@ -245,7 +245,7 @@ server {
 	error_page 400 401 402 403 500 501 502 503 504 =404 /404;
 	proxy_intercept_errors on;
 	#X-UI Admin Panel
-	location /$panel_path/ {
+	location /${panel_path}/ {
 		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
@@ -253,7 +253,7 @@ server {
 		proxy_pass http://127.0.0.1:$panel_port;
 		break;
 	}
-        location /$panel_path {
+        location /${panel_path} {
 		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
@@ -262,7 +262,7 @@ server {
 		break;
 	}
  	#Subscription Path (simple/encode)
-        location /$sub_path {
+        location /${sub_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
@@ -271,7 +271,7 @@ server {
                 proxy_pass http://127.0.0.1:$sub_port;
                 break;
         }
-	location /$sub_path/ {
+	location /${sub_path}/ {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
@@ -281,7 +281,7 @@ server {
                 break;
         }
 	#Subscription Path (json/fragment)
-        location /$json_path {
+        location /${json_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
@@ -290,7 +290,7 @@ server {
                 proxy_pass http://127.0.0.1:$sub_port;
                 break;
         }
-	location /$json_path/ {
+	location /${json_path}/ {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
@@ -336,10 +336,10 @@ server {
 }
 EOF
 
-cat > "/etc/nginx/sites-available/$reality_domain" << EOF
+cat > "/etc/nginx/sites-available/${reality_domain}" << EOF
 server {
 	server_tokens off;
-	server_name $reality_domain;
+	server_name ${reality_domain};
 	listen 9443 ssl http2;
 	listen [::]:9443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
@@ -356,12 +356,12 @@ server {
 	error_page 400 401 402 403 500 501 502 503 504 =404 /404;
 	proxy_intercept_errors on;
 	#X-UI Admin Panel
-	location /$panel_path/ {
+	location /${panel_path}/ {
 		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$panel_port;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
         location /$panel_path {
@@ -369,45 +369,45 @@ server {
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$panel_port;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
  	#Subscription Path (simple/encode)
-        location /$sub_path {
+        location /${sub_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
-	location /$sub_path/ {
+	location /${sub_path}/ {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
 	#Subscription Path (json/fragment)
-        location /$json_path {
+        location /${json_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
-	location /$json_path/ {
+	location /${json_path}/ {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
  	#Xray Config Path
@@ -447,14 +447,14 @@ server {
 }
 EOF
 ##################################Check Nginx status####################################################
-if [[ -f "/etc/nginx/sites-available/$domain" ]]; then
+if [[ -f "/etc/nginx/sites-available/${domain}" ]]; then
 	unlink "/etc/nginx/sites-enabled/default" >/dev/null 2>&1
 	rm -f "/etc/nginx/sites-enabled/default" "/etc/nginx/sites-available/default"
-	ln -s "/etc/nginx/sites-available/$domain" "/etc/nginx/sites-enabled/" 2>/dev/null
-        ln -s "/etc/nginx/sites-available/$reality_domain" "/etc/nginx/sites-enabled/" 2>/dev/null
+	ln -s "/etc/nginx/sites-available/${domain}" "/etc/nginx/sites-enabled/" 2>/dev/null
+        ln -s "/etc/nginx/sites-available/${reality_domain}" "/etc/nginx/sites-enabled/" 2>/dev/null
 	ln -s "/etc/nginx/sites-available/80.conf" "/etc/nginx/sites-enabled/" 2>/dev/null
 else
-	msg_err "$domain nginx config not exist!" && exit 1
+	msg_err "${domain} nginx config not exist!" && exit 1
 fi
 
 if [[ $(nginx -t 2>&1 | grep -o 'successful') != "successful" ]]; then
@@ -479,8 +479,8 @@ if [[ -f $XUIDB ]]; then
         public_key=${var2[5]}
 	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
        	sqlite3 $XUIDB <<EOF
-             UPDATE settings SET value = '${panel_port}' WHERE id = 1;
-             UPDATE settings SET value = '/${panel_path}/' WHERE id = 2;
+             UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
+             UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
              INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subURI",  '${sub_uri}');
