@@ -12,6 +12,11 @@ msg_inf		 ' /\    |_| _|_   |   | \ \_/ '	; echo
 XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n"
 Pak=$(type apt &>/dev/null && echo "apt" || echo "yum")
 
+rm -rf /etc/x-ui/x-ui.db
+rm -rf /etc/nginx/sites-enabled/*
+rm -rf /etc/nginx/sites-available/*
+rm -rf /etc/nginx/stream-enabled/*
+
 ##################################generate ports and paths#############################################################
 get_port() {
 	echo $(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
