@@ -487,8 +487,6 @@ if [[ -f $XUIDB ]]; then
         public_key=${var2[5]}
 	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
        	sqlite3 $XUIDB <<EOF
-	     INSERT INTO "settings" ("key", "value") VALUES ("webPort",  '${panel_port}');
-	     INSERT INTO "settings" ("key", "value") VALUES ("webBasePath",  '/${panel_path}/');
              UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
              INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
