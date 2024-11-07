@@ -258,7 +258,7 @@ server {
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$panel_port;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
         location /${panel_path} {
@@ -266,7 +266,7 @@ server {
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$panel_port;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
  	#Subscription Path (simple/encode)
@@ -276,7 +276,7 @@ server {
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
 	location /${sub_path}/ {
@@ -285,7 +285,7 @@ server {
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
 	#Subscription Path (json/fragment)
@@ -295,7 +295,7 @@ server {
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
 	location /${json_path}/ {
@@ -304,7 +304,7 @@ server {
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:$sub_port;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
  	#Xray Config Path
