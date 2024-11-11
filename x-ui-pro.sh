@@ -483,7 +483,7 @@ shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(ope
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
 if [[ -f $XUIDB ]]; then
-        x-ui start
+        x-ui stop
         var1=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519)
         var2=($var1)
         private_key=${var2[2]}
@@ -654,8 +654,6 @@ if [[ -f $XUIDB ]]; then
   ],
   "decryption": "none",
   "fallbacks": []
-}',
-"fallbacks": []
 }|{
   "network": "ws",
   "security": "none",
@@ -669,7 +667,7 @@ if [[ -f $XUIDB ]]; then
   ],
   "wsSettings": {
     "acceptProxyProtocol": false,
-    "path": "/${ws_port}/ws_path",
+    "path": "/${ws_port}/${ws_path}",
     "host": "${domain}",
     "headers": {}
   }
