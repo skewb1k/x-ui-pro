@@ -531,7 +531,7 @@ if [[ -f $XUIDB ]]; then
       
              INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
              '1',
-	     '0',/etc/systemd/system/x-ui.service
+	     '0',
              '0',
 	     '0',
              'first',
