@@ -654,7 +654,7 @@ if [[ -f $XUIDB ]]; then
   ],
   "decryption": "none",
   "fallbacks": []
-}|{
+}','{
   "network": "ws",
   "security": "none",
   "externalProxy": [
@@ -671,7 +671,7 @@ if [[ -f $XUIDB ]]; then
     "host": "${domain}",
     "headers": {}
   }
-},
+}',
              'inbound-${ws_port}',
 	     '{
   "enabled": false,
