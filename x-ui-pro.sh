@@ -45,6 +45,8 @@ panel_port=$(make_port)
 sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+ws_port=$(make_port)
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 
 ##################################Random Port and Path #################################################
 #RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
@@ -487,6 +489,7 @@ if [[ -f $XUIDB ]]; then
         private_key=${var2[2]}
         public_key=${var2[5]}
 	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        client_id2=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
        	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
@@ -534,7 +537,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'first',
+             'reality',
 	     '1',
              '0',
 	     '',
@@ -572,7 +575,7 @@ if [[ -f $XUIDB ]]; then
   "realitySettings": {
     "show": false,
     "xver": 0,
-    "dest": "$reality_domain:9443",
+    "dest": "${reality_domain}:9443",
     "serverNames": [
       "$reality_domain"
     ],
@@ -605,6 +608,72 @@ if [[ -f $XUIDB ]]; then
   }
 }',
              'inbound-8443',
+	     '{
+  "enabled": false,
+  "destOverride": [
+    "http",
+    "tls",
+    "quic",
+    "fakedns"
+  ],
+  "metadataOnly": false,
+  "routeOnly": false
+}',
+'{
+  "strategy": "always",
+  "refresh": 5,
+  "concurrency": 3
+}'
+	     );
+      INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
+             '1',
+	     '0',
+             '0',
+	     '0',
+             'vless_ws',
+	     '1',
+             '0',
+	     '',
+             '${ws_port}',
+	     'vless',
+             '{
+  "clients": [
+    {
+      "id": "${client_id2}",
+      "flow": "",
+      "email": "first_1",
+      "limitIp": 0,
+      "totalGB": 0,
+      "expiryTime": 0,
+      "enable": true,
+      "tgId": "",
+      "subId": "first",
+      "reset": 0
+    }
+  ],
+  "decryption": "none",
+  "fallbacks": []
+}',
+"fallbacks": []
+}|{
+  "network": "ws",
+  "security": "none",
+  "externalProxy": [
+    {
+      "forceTls": "tls",
+      "dest": "${domain}",
+      "port": 443,
+      "remark": ""
+    }
+  ],
+  "wsSettings": {
+    "acceptProxyProtocol": false,
+    "path": "/${ws_port}/ws_path",
+    "host": "${domain}",
+    "headers": {}
+  }
+},
+             'inbound-${ws_port}',
 	     '{
   "enabled": false,
   "destOverride": [
