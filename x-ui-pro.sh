@@ -481,6 +481,7 @@ shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(ope
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
 if [[ -f $XUIDB ]]; then
+        x-ui start
         var1=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519)
         var2=($var1)
         private_key=${var2[2]}
@@ -514,7 +515,7 @@ if [[ -f $XUIDB ]]; then
              INSERT INTO "settings" ("key", "value") VALUES ("tgBotLoginNotify",  'true');
 	     INSERT INTO "settings" ("key", "value") VALUES ("tgCpu",  '80');
              INSERT INTO "settings" ("key", "value") VALUES ("tgLang",  'en-US');
-	     INSERT INTO "settings" ("key", "value") VALUES ("timeLocation",  'Eorupe/Moscow');
+	     INSERT INTO "settings" ("key", "value") VALUES ("timeLocation",  'Europe/Moscow');
              INSERT INTO "settings" ("key", "value") VALUES ("secretEnable",  'false');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subDomain",  '');
              INSERT INTO "settings" ("key", "value") VALUES ("subCertFile",  '');
@@ -622,6 +623,7 @@ if [[ -f $XUIDB ]]; then
 }'
 	     );
 EOF
+x-ui start
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;
 fi
