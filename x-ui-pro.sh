@@ -358,9 +358,9 @@ server {
 	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
 	ssl_certificate /etc/letsencrypt/live/$reality_domain/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/$reality_domain/privkey.pem;
-	if (\$host !~* ^(.+\.)?$MainDomain\$ ){return 444;}
+	if (\$host !~* ^(.+\.)?${reality_domain}\$ ){return 444;}
 	if (\$scheme ~* https) {set \$safe 1;}
-	if (\$ssl_server_name !~* ^(.+\.)?$MainDomain\$ ) {set \$safe "\${safe}0"; }
+	if (\$ssl_server_name !~* ^(.+\.)?${reality_domain}\$ ) {set \$safe "\${safe}0"; }
 	if (\$safe = 10){return 444;}
 	if (\$request_uri ~ "(\"|'|\`|~|,|:|--|;|%|\\$|&&|\?\?|0x00|0X00|\||\\|\{|\}|\[|\]|<|>|\.\.\.|\.\.\/|\/\/\/)"){set \$hack 1;}
 	error_page 400 401 402 403 500 501 502 503 504 =404 /404;
