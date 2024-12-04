@@ -11,15 +11,53 @@ msg_inf		 ' /\    |_| _|_   |   | \ \_/ '	; echo
 ##################################Variables#############################################################
 XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n"
 Pak=$(type apt &>/dev/null && echo "apt" || echo "yum")
+systemctl stop x-ui
+rm -rf /etc/systemd/system/x-ui.service
+rm -rf /usr/local/x-ui
+rm -rf /etc/x-ui
+rm -rf /etc/nginx/sites-enabled/*
+rm -rf /etc/nginx/sites-available/*
+rm -rf /etc/nginx/stream-enabled/*
+
+
+##################################generate ports and paths#############################################################
+get_port() {
+	echo $(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
+}
+
+check_free() {
+	local port=$1
+	nc -z 127.0.0.1 $port &>/dev/null
+	return $?
+}
+
+make_port() {
+	while true; do
+		PORT=$(get_port)
+		if ! check_free $PORT; then 
+			echo $PORT
+			break
+		fi
+	done
+}
+sub_port=$(make_port)
+panel_port=$(make_port)
+sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+ws_port=$(make_port)
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+
 ##################################Random Port and Path #################################################
-RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-while true; do 
-    PORT=$(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
-    status="$(nc -z 127.0.0.1 $PORT < /dev/null &>/dev/null; echo $?)"
-    if [ "${status}" != "0" ]; then
-        break
-    fi
-done
+#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+#while true; do 
+#    PORT=$(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
+#    status="$(nc -z 127.0.0.1 $PORT < /dev/null &>/dev/null; echo $?)"
+#    if [ "${status}" != "0" ]; then
+#        break
+#    fi
+#done
+
 ################################Get arguments###########################################################
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -32,6 +70,8 @@ while [ "$#" -gt 0 ]; do
     *) shift 1;;
   esac
 done
+
+
 ##############################Uninstall#################################################################
 UNINSTALL_XUI(){
 	printf 'y\n' | x-ui uninstall
@@ -81,6 +121,14 @@ fi
 ###############################Install Packages#########################################################
 ufw disable
 if [[ ${INSTALL} == *"y"* ]]; then
+
+         version=$(grep -oP '(?<=VERSION_ID=")[0-9]+' /etc/os-release)
+
+         # Проверяем, является ли версия 20 или 22
+        if [[ "$version" == "20" || "$version" == "22" ]]; then
+              echo "Версия системы: Ubuntu $version"
+        fi
+
 	$Pak -y update
 	$Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 
 	systemctl daemon-reload && systemctl enable --now nginx
@@ -150,8 +198,8 @@ mkdir -p /etc/nginx/stream-enabled
 cat > "/etc/nginx/stream-enabled/stream.conf" << EOF
 map \$ssl_preread_server_name \$sni_name {
     hostnames;
-    $reality_domain      xray;
-    $domain           www;
+    ${reality_domain}      xray;
+    ${domain}           www;
     default              xray;
 }
 
@@ -181,16 +229,16 @@ sed -i "/worker_connections/c\worker_connections 4096;" /etc/nginx/nginx.conf
 cat > "/etc/nginx/sites-available/80.conf" << EOF
 server {
     listen 80;
-    server_name $domain $reality_domain;
+    server_name ${domain} ${reality_domain};
     return 301 https://\$host\$request_uri;
 }
 EOF
 
 
-cat > "/etc/nginx/sites-available/$domain" << EOF
+cat > "/etc/nginx/sites-available/${domain}" << EOF
 server {
 	server_tokens off;
-	server_name $domain;
+	server_name ${domain};
 	listen 7443 ssl http2 proxy_protocol;
 	listen [::]:7443 ssl http2 proxy_protocol;
 	index index.html index.htm index.php index.nginx-debian.html;
@@ -207,40 +255,58 @@ server {
 	error_page 400 401 402 403 500 501 502 503 504 =404 /404;
 	proxy_intercept_errors on;
 	#X-UI Admin Panel
-	location /$RNDSTR/ {
+	location /${panel_path}/ {
 		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$PORT;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
-        location /$RNDSTR {
+        location /${panel_path} {
 		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$PORT;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
  	#Subscription Path (simple/encode)
-        location ~ ^/(?<fwdport>\d+)/sub/(?<fwdpath>.*)\$ {
+        location /${sub_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:\$fwdport/sub/\$fwdpath\$is_args\$args;
+                proxy_pass http://127.0.0.1:${sub_port};
+                break;
+        }
+	location /${sub_path}/ {
+                if (\$hack = 1) {return 404;}
+                proxy_redirect off;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
 	#Subscription Path (json/fragment)
-        location ~ ^/(?<fwdport>\d+)/json/(?<fwdpath>.*)\$ {
+        location /${json_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:\$fwdport/json/\$fwdpath\$is_args\$args;
+                proxy_pass http://127.0.0.1:${sub_port};
+                break;
+        }
+	location /${json_path}/ {
+                if (\$hack = 1) {return 404;}
+                proxy_redirect off;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
  	#Xray Config Path
@@ -280,10 +346,10 @@ server {
 }
 EOF
 
-cat > "/etc/nginx/sites-available/$reality_domain" << EOF
+cat > "/etc/nginx/sites-available/${reality_domain}" << EOF
 server {
 	server_tokens off;
-	server_name $reality_domain;
+	server_name ${reality_domain};
 	listen 9443 ssl http2;
 	listen [::]:9443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
@@ -292,40 +358,66 @@ server {
 	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
 	ssl_certificate /etc/letsencrypt/live/$reality_domain/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/$reality_domain/privkey.pem;
-	if (\$host !~* ^(.+\.)?$RealityMainDomain\$ ){return 444;}
+	if (\$host !~* ^(.+\.)?${reality_domain}\$ ){return 444;}
 	if (\$scheme ~* https) {set \$safe 1;}
-	if (\$ssl_server_name !~* ^(.+\.)?$RealityMainDomain\$ ) {set \$safe "\${safe}0"; }
+	if (\$ssl_server_name !~* ^(.+\.)?${reality_domain}\$ ) {set \$safe "\${safe}0"; }
 	if (\$safe = 10){return 444;}
 	if (\$request_uri ~ "(\"|'|\`|~|,|:|--|;|%|\\$|&&|\?\?|0x00|0X00|\||\\|\{|\}|\[|\]|<|>|\.\.\.|\.\.\/|\/\/\/)"){set \$hack 1;}
 	error_page 400 401 402 403 500 501 502 503 504 =404 /404;
 	proxy_intercept_errors on;
 	#X-UI Admin Panel
-	location /$RNDSTR/ {
+	location /${panel_path}/ {
 		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_pass http://127.0.0.1:$PORT;
+		proxy_pass http://127.0.0.1:${panel_port};
+		break;
+	}
+        location /$panel_path {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
  	#Subscription Path (simple/encode)
-        location ~ ^/(?<fwdport>\d+)/sub/(?<fwdpath>.*)\$ {
+        location /${sub_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:\$fwdport/sub/\$fwdpath\$is_args\$args;
+                proxy_pass http://127.0.0.1:${sub_port};
+                break;
+        }
+	location /${sub_path}/ {
+                if (\$hack = 1) {return 404;}
+                proxy_redirect off;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
 	#Subscription Path (json/fragment)
-        location ~ ^/(?<fwdport>\d+)/json/(?<fwdpath>.*)\$ {
+        location /${json_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
                 proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_pass http://127.0.0.1:\$fwdport/json/\$fwdpath\$is_args\$args;
+                proxy_pass http://127.0.0.1:${sub_port};
+                break;
+        }
+	location /${json_path}/ {
+                if (\$hack = 1) {return 404;}
+                proxy_redirect off;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
  	#Xray Config Path
@@ -365,14 +457,14 @@ server {
 }
 EOF
 ##################################Check Nginx status####################################################
-if [[ -f "/etc/nginx/sites-available/$domain" ]]; then
+if [[ -f "/etc/nginx/sites-available/${domain}" ]]; then
 	unlink "/etc/nginx/sites-enabled/default" >/dev/null 2>&1
 	rm -f "/etc/nginx/sites-enabled/default" "/etc/nginx/sites-available/default"
-	ln -s "/etc/nginx/sites-available/$domain" "/etc/nginx/sites-enabled/" 2>/dev/null
-        ln -s "/etc/nginx/sites-available/$reality_domain" "/etc/nginx/sites-enabled/" 2>/dev/null
+	ln -s "/etc/nginx/sites-available/${domain}" "/etc/nginx/sites-enabled/" 2>/dev/null
+        ln -s "/etc/nginx/sites-available/${reality_domain}" "/etc/nginx/sites-enabled/" 2>/dev/null
 	ln -s "/etc/nginx/sites-available/80.conf" "/etc/nginx/sites-enabled/" 2>/dev/null
 else
-	msg_err "$domain nginx config not exist!" && exit 1
+	msg_err "${domain} nginx config not exist!" && exit 1
 fi
 
 if [[ $(nginx -t 2>&1 | grep -o 'successful') != "successful" ]]; then
@@ -380,20 +472,231 @@ if [[ $(nginx -t 2>&1 | grep -o 'successful') != "successful" ]]; then
 else
 	systemctl start nginx 
 fi
+
+
+##############################generate uri's###########################################################
+sub_uri=https://${domain}/${sub_path}/
+json_uri=https://${domain}/${json_path}/
+##############################generate keys###########################################################
+shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8))
+
 ########################################Update X-UI Port/Path for first INSTALL#########################
 UPDATE_XUIDB(){
 if [[ -f $XUIDB ]]; then
-	sqlite3 $XUIDB <<EOF
-	DELETE FROM "settings" WHERE ( "key"="webPort" ) OR ( "key"="webCertFile" ) OR ( "key"="webKeyFile" ) OR ( "key"="webBasePath" ); 
-	INSERT INTO "settings" ("key", "value") VALUES ("webPort",  "${PORT}");
-	INSERT INTO "settings" ("key", "value") VALUES ("webCertFile",  "");
-	INSERT INTO "settings" ("key", "value") VALUES ("webKeyFile", "");
-	INSERT INTO "settings" ("key", "value") VALUES ("webBasePath", "/${RNDSTR}/");
+        x-ui stop
+        var1=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519)
+        var2=($var1)
+        private_key=${var2[2]}
+        public_key=${var2[5]}
+	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        client_id2=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+       	sqlite3 $XUIDB <<EOF
+             UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
+             UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
+             INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subURI",  '${sub_uri}');
+             INSERT INTO "settings" ("key", "value") VALUES ("subJsonPath",  '${json_path}');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonURI",  '${json_uri}');
+             INSERT INTO "settings" ("key", "value") VALUES ("subEnable",  'true');
+             INSERT INTO "settings" ("key", "value") VALUES ("webListen",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("webDomain",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("webCertFile",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("webKeyFile",  '');
+      	     INSERT INTO "settings" ("key", "value") VALUES ("sessionMaxAge",  '60');
+             INSERT INTO "settings" ("key", "value") VALUES ("pageSize",  '50');
+             INSERT INTO "settings" ("key", "value") VALUES ("expireDiff",  '0');
+             INSERT INTO "settings" ("key", "value") VALUES ("trafficDiff",  '0');
+             INSERT INTO "settings" ("key", "value") VALUES ("remarkModel",  '-ieo');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotEnable",  'false');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotToken",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotProxy",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotAPIServer",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("tgBotChatId",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgRunTime",  '@daily');
+	     INSERT INTO "settings" ("key", "value") VALUES ("tgBotBackup",  'false');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgBotLoginNotify",  'true');
+	     INSERT INTO "settings" ("key", "value") VALUES ("tgCpu",  '80');
+             INSERT INTO "settings" ("key", "value") VALUES ("tgLang",  'en-US');
+	     INSERT INTO "settings" ("key", "value") VALUES ("timeLocation",  'Europe/Moscow');
+             INSERT INTO "settings" ("key", "value") VALUES ("secretEnable",  'false');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subDomain",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subCertFile",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subKeyFile",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subUpdates",  '12');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subEncrypt",  'true');
+             INSERT INTO "settings" ("key", "value") VALUES ("subShowInfo",  'true');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonFragment",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subJsonNoises",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonMux",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ("subJsonRules",  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ("datepicker",  'gregorian');
+             INSERT INTO "client_traffics" ("inbound_id","enable","email","up","down","expiry_time","total","reset") VALUES ('1','1','first','0','0','0','0','0');
+	     INSERT INTO "client_traffics" ("inbound_id","enable","email","up","down","expiry_time","total","reset") VALUES ('2','1','first_1','0','0','0','0','0');
+             INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
+             '1',
+	     '0',
+             '0',
+	     '0',
+             'reality',
+	     '1',
+             '0',
+	     '',
+             '8443',
+	     'vless',
+             '{
+	     "clients": [
+    {
+      "id": "${client_id}",
+      "flow": "xtls-rprx-vision",
+      "email": "first",
+      "limitIp": 0,
+      "totalGB": 0,
+      "expiryTime": 0,
+      "enable": true,
+      "tgId": "",
+      "subId": "first",
+      "reset": 0
+    }
+  ],
+  "decryption": "none",
+  "fallbacks": []
+}',
+	     '{
+  "network": "tcp",
+  "security": "reality",
+  "externalProxy": [
+    {
+      "forceTls": "same",
+      "dest": "${domain}",
+      "port": 443,
+      "remark": ""
+    }
+  ],
+  "realitySettings": {
+    "show": false,
+    "xver": 0,
+    "dest": "${reality_domain}:9443",
+    "serverNames": [
+      "$reality_domain"
+    ],
+    "privateKey": "${private_key}",
+    "minClient": "",
+    "maxClient": "",
+    "maxTimediff": 0,
+    "shortIds": [
+      "${shor[0]}",
+      "${shor[1]}",
+      "${shor[2]}",
+      "${shor[3]}",
+      "${shor[4]}",
+      "${shor[5]}",
+      "${shor[6]}",
+      "${shor[7]}"
+    ],
+    "settings": {
+      "publicKey": "${public_key}",
+      "fingerprint": "random",
+      "serverName": "",
+      "spiderX": "/"
+    }
+  },
+  "tcpSettings": {
+    "acceptProxyProtocol": true,
+    "header": {
+      "type": "none"
+    }
+  }
+}',
+             'inbound-8443',
+	     '{
+  "enabled": false,
+  "destOverride": [
+    "http",
+    "tls",
+    "quic",
+    "fakedns"
+  ],
+  "metadataOnly": false,
+  "routeOnly": false
+}',
+'{
+  "strategy": "always",
+  "refresh": 5,
+  "concurrency": 3
+}'
+	     );
+      INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
+             '1',
+	     '0',
+             '0',
+	     '0',
+             'vless_ws',
+	     '1',
+             '0',
+	     '',
+             '${ws_port}',
+	     'vless',
+             '{
+  "clients": [
+    {
+      "id": "${client_id2}",
+      "flow": "",
+      "email": "first_1",
+      "limitIp": 0,
+      "totalGB": 0,
+      "expiryTime": 0,
+      "enable": true,
+      "tgId": "",
+      "subId": "first",
+      "reset": 0
+    }
+  ],
+  "decryption": "none",
+  "fallbacks": []
+}','{
+  "network": "ws",
+  "security": "none",
+  "externalProxy": [
+    {
+      "forceTls": "tls",
+      "dest": "${domain}",
+      "port": 443,
+      "remark": ""
+    }
+  ],
+  "wsSettings": {
+    "acceptProxyProtocol": false,
+    "path": "/${ws_port}/${ws_path}",
+    "host": "${domain}",
+    "headers": {}
+  }
+}',
+             'inbound-${ws_port}',
+	     '{
+  "enabled": false,
+  "destOverride": [
+    "http",
+    "tls",
+    "quic",
+    "fakedns"
+  ],
+  "metadataOnly": false,
+  "routeOnly": false
+}',
+'{
+  "strategy": "always",
+  "refresh": 5,
+  "concurrency": 3
+}'
+	     );
 EOF
+x-ui start
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;
 fi
 }
+
 ###################################Install X-UI#########################################################
 if systemctl is-active --quiet x-ui; then
 	x-ui restart
@@ -442,22 +745,31 @@ crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
 (crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
+##################################ufw###################################################################
+ufw disable
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw --force enable  
 ##################################Show Details##########################################################
+
 if systemctl is-active --quiet x-ui; then clear
 	printf '0\n' | x-ui | grep --color=never -i ':'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	nginx -T | grep -i 'ssl_certificate\|ssl_certificate_key'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	certbot certificates | grep -i 'Path:\|Domains:\|Expiry Date:'
-	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-	if [[ -n $IP4 ]] && [[ "$IP4" =~ $IP4_REGEX ]]; then 
-		msg_inf "IPv4: http://$IP4:$PORT/$RNDSTR/"
-	fi
-	if [[ -n $IP6 ]] && [[ "$IP6" =~ $IP6_REGEX ]]; then 
-		msg_inf "IPv6: http://[$IP6]:$PORT/$RNDSTR/"
-	fi
-	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-	msg_inf "X-UI Secure Panel: https://${domain}/${RNDSTR}/\n"
+
+#	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+#	if [[ -n $IP4 ]] && [[ "$IP4" =~ $IP4_REGEX ]]; then 
+#		msg_inf "IPv4: http://$IP4:$PORT/$RNDSTR/"
+#	fi
+#	if [[ -n $IP6 ]] && [[ "$IP6" =~ $IP6_REGEX ]]; then 
+#		msg_inf "IPv6: http://[$IP6]:$PORT/$RNDSTR/"
+#	fi
+
+ msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+	msg_inf "X-UI Secure Panel: https://${domain}/${panel_path}/\n"
  	echo -n "Username:  " && sqlite3 $XUIDB 'SELECT "username" FROM users;'
 	echo -n "Password:  " && sqlite3 $XUIDB 'SELECT "password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
