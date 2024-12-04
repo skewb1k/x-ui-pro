@@ -39,5 +39,11 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/
 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Server Configuration :wrench:🐧⚙️
+>
+Reality example
+>
 ![](https://github.com/mozaroc/x-ui-pro/blob/master/media/new_screen_old.png?raw=true)
+>
+WebSocket example
+>
 ![](https://github.com/mozaroc/x-ui-pro/blob/master/media/vlessandws.png?raw=true)
