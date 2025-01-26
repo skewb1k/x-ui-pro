@@ -42,13 +42,15 @@
         function opensingbox() {
             var name = document.getElementById("nameInput").value.trim();
             var templateSelect = document.getElementById("templateSelect").value;
+            var customTemplateUrl = document.getElementById("customTemplateUrl").value.trim();
+            var templateUrl = templateSelect === "custom" ? customTemplateUrl : templateSelect;
             var subUrl = "https://${DOMAIN}/${SUB_PATH}/" + encodeURIComponent(name);
 
             var jsonData = {
                 "subscription": [subUrl],
                 "proxy": [],
                 "delete": "XHTTP",
-                "template": templateSelect,
+                "template": templateUrl,
                 "rename": {},
                 "group-type": "selector",
                 "sort": "tag",
@@ -72,16 +74,24 @@
             });
         }
 
+        function toggleCustomTemplateInput() {
+            var templateSelect = document.getElementById("templateSelect").value;
+            var customTemplateInput = document.getElementById("customTemplateInput");
+            customTemplateInput.style.display = templateSelect === "custom" ? "block" : "none";
+        }
+
         function copySingboxLink() {
             var name = document.getElementById("nameInput").value.trim();
             var templateSelect = document.getElementById("templateSelect").value;
+            var customTemplateUrl = document.getElementById("customTemplateUrl").value.trim();
+            var templateUrl = templateSelect === "custom" ? customTemplateUrl : templateSelect;
             var subUrl = "https://${DOMAIN}/${SUB_PATH}/" + encodeURIComponent(name);
 
             var jsonData = {
                 "subscription": [subUrl],
                 "proxy": [],
                 "delete": "XHTTP",
-                "template": templateSelect,
+                "template": templateUrl,
                 "rename": {},
                 "group-type": "selector",
                 "sort": "tag",
@@ -99,7 +109,10 @@
             });
         }
 
-        document.addEventListener("DOMContentLoaded", fillNameInput);
+        document.addEventListener("DOMContentLoaded", function () {
+            fillNameInput();
+            toggleCustomTemplateInput();
+        });
     </script>
     <style>
         body {
@@ -174,7 +187,9 @@
     <h3>- Windows -</h3>
     <button class="button"
         onclick="window.open('https://github.com/BLUEBL0B/Secret-Sing-Box/blob/main/Client-Guidelines/Sing-Box-Windows-ru.md', '_blank')">sing-box</button>
-    <button class="button" onclick="window.open('https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/releases/latest', '_blank')">Invisible Man</button>
+    <button class="button"
+        onclick="window.open('https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/releases/latest', '_blank')">Invisible
+        Man</button>
     <br><br>
     <h3>- Linux -</h3>
     <button class="button"
@@ -192,7 +207,7 @@
         <button class="button" onclick="openinvisibleman()">Добавить в Invisible Man</button>
         <button class="button" onclick="copyXrayJsonLink()">Скопировать ссылку xray json</button>
         <p style="line-height: 2em;"><i>Выберите шаблон sing-box:</i></p>
-        <select id="templateSelect" required>
+        <select id="templateSelect" onchange="toggleCustomTemplateInput()" required>
             <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/ru-bundle.json"
                 selected>ru-bundle</option>
             <option
@@ -202,7 +217,11 @@
                 re-filter</option>
             <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/secret-sing-box.json">
                 secret-sing-box</option>
+            <option value="custom">Свой шаблон</option>
         </select><br>
+        <div id="customTemplateInput">
+            <input type="text" placeholder="Введите ссылку на шаблон..." id="customTemplateUrl"><br>
+        </div>
         <button class="button" onclick="opensingbox()">Добавить в sing-box</button>
         <button class="button" onclick="copySingboxLink()">Скопировать ссылку sing-box</button>
     </form>
