@@ -42,6 +42,7 @@ make_port() {
 }
 sub_port=$(make_port)
 panel_port=$(make_port)
+web_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
@@ -271,7 +272,14 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
- 	#Subscription Path (simple/encode)
+ 	#Web Page Subscription Path
+  location ~ ^/${web_path} {
+    default_type application/json;
+    root /var/www/subpage;
+    index index.html;
+    try_files /index.html =404;
+    }
+  #Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
@@ -382,6 +390,13 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
+  #Web Page Subscription Path
+  location ~ ^/${web_path} {
+    default_type application/json;
+    root /var/www/subpage;
+    index index.html;
+    try_files /index.html =404;
+    }
  	#Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
@@ -739,6 +754,20 @@ sysctl -p
 
 sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/refs/heads/master/randomfakehtml.sh)"
 
+######################install_web_sub_page##############################################################
+
+URL_SUB_PAGE="https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
+DEST_DIR_SUB_PAGE="/var/www/subpage"
+DEST_FILE_SUB_PAGE="$DEST_DIR_SUB_PAGE/index.html"
+
+sudo mkdir -p "$DEST_DIR_SUB_PAGE"
+
+sudo curl -L "$URL_SUB_PAGE" -o "$DEST_FILE_SUB_PAGE"
+
+sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
+sed -i "s#\${SUB_JSON_PATH}#$json_path#g" "$DEST_FILE_SUB_PAGE"
+sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_SUB_PAGE"
+
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
@@ -773,6 +802,8 @@ if systemctl is-active --quiet x-ui; then clear
  	echo -n "Username:  " && sqlite3 $XUIDB 'SELECT "username" FROM users;'
 	echo -n "Password:  " && sqlite3 $XUIDB 'SELECT "password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  msg_inf "Web Sub Page your first client: https://${domain}/${web_path}?name=first\n"
+  msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	msg_inf "Please Save this Screen!!"	
 else
 	nginx -t && printf '0\n' | x-ui | grep --color=never -i ':'
