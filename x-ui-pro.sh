@@ -491,7 +491,7 @@ fi
 
 ##############################generate uri's###########################################################
 sub_uri=https://${domain}/${sub_path}/
-json_uri=https://${domain}/${json_path}/
+json_uri=https://${domain}/${web_path}?name=
 ##############################generate keys###########################################################
 shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8))
 
