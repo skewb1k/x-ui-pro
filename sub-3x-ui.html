@@ -61,6 +61,17 @@
             window.open(fullUrl);
         }
 
+        function copyXrayJsonLink() {
+            var name = document.getElementById("nameInput").value.trim();
+            var XrayJson = "https://${DOMAIN}/${SUB_JSON_PATH}/" + encodeURIComponent(name);
+
+            navigator.clipboard.writeText(XrayJson).then(function () {
+                alert("Ссылка скопирована в буфер обмена!");
+            }, function (err) {
+                alert("Ошибка копирования: " + err);
+            });
+        }
+
         function copySingboxLink() {
             var name = document.getElementById("nameInput").value.trim();
             var templateSelect = document.getElementById("templateSelect").value;
@@ -172,13 +183,14 @@
         скачать Hiddify</button>
     <br><br>
     <h2 style="line-height: 1.2em;">2. Подключиться к серверу</h2>
-    <p style="line-height: 2em;"><i>Для Android, iOS и Windows (Hiddify)</i></p>
+    <p style="line-height: 2em;"><i>Для Android, iOS и Windows</i></p>
     <p>
     <form onsubmit="return false;">
         <input type="text" placeholder="Введите имя пользователя..." id="nameInput" required><br><br>
         <button class="button" onclick="openv2rayng()">Добавить в v2rayng</button>
         <button class="button" onclick="openstreisand()">Добавить в streisand</button>
         <button class="button" onclick="openinvisibleman()">Добавить в Invisible Man</button>
+        <button class="button" onclick="copyXrayJsonLink()">Скопировать ссылку xray json</button>
         <p style="line-height: 2em;"><i>Выберите шаблон sing-box:</i></p>
         <select id="templateSelect" required>
             <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/ru-bundle.json"
