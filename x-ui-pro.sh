@@ -43,6 +43,7 @@ make_port() {
 sub_port=$(make_port)
 panel_port=$(make_port)
 web_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+sub2singbox_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
@@ -272,6 +273,14 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
+  	#sub2sing-box
+ location /${sub2singbox_path}/ {
+    proxy_redirect off;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_pass http://127.0.0.1:8080/;
+}
  	#Web Page Subscription Path
   location ~ ^/${web_path} {
     default_type application/json;
@@ -390,6 +399,14 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
+   	#sub2sing-box
+ location /${sub2singbox_path}/ {
+    proxy_redirect off;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_pass http://127.0.0.1:8080/;
+}
   #Web Page Subscription Path
   location ~ ^/${web_path} {
     default_type application/json;
@@ -745,10 +762,14 @@ echo "net.ipv4.tcp_wmem = 4096 65536 16777216" | tee -a /etc/sysctl.conf
 sysctl -p
 
 
+######################install_sub2sing-box#################################################################
 
-
-
-
+wget -P /root/ https://github.com/nitezs/sub2sing-box/releases/download/v0.0.9-beta.2/sub2sing-box_0.0.9-beta.2_linux_amd64.tar.gz
+tar -xvzf /root/sub2sing-box_0.0.9-beta.2_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9-beta.2_linux_amd64/sub2sing-box
+mv /root/sub2sing-box /usr/bin/
+chmod +x /usr/bin/sub2sing-box
+rm /root/sub2sing-box_0.0.9-beta.2_linux_amd64.tar.gz
+su -c "/usr/bin/sub2sing-box server & disown" root
 
 ######################install_fake_site#################################################################
 
@@ -767,10 +788,11 @@ sudo curl -L "$URL_SUB_PAGE" -o "$DEST_FILE_SUB_PAGE"
 sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_JSON_PATH}#$json_path#g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_SUB_PAGE"
-
+sed -i "s|sub.legiz.ru|$domain/$sub2singbox_path|g" "$DEST_FILE_SUB_PAGE"
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
+(crontab -l 2>/dev/null; echo '@reboot /usr/bin/sub2sing-box server > /dev/null 2>&1') | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
 (crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
