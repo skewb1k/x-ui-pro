@@ -1050,7 +1050,7 @@ document.addEventListener("DOMContentLoaded", function () {
 													<p x-text="$t('betterAdmin')"></p>
 													<p class="fs-5 fw-bold mt-4">4. <span x-text="$t('addConfig')"></span></p>
 													<p x-text="$t('copyLinkBelow')"></p>
-													<button class="btn my-btn my-btn-accent w-100 text-break mb-4 btn-copy-sub-link" type="button">
+													<button class="btn my-btn my-btn-accent w-100 text-break mb-4 btn-copy-sub-link-base64" type="button">
 														<script type="text/javascript">
 															document.write(linkFullBase64);
 														</script>
@@ -1106,7 +1106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 													<p x-text="$t('betterAdmin')"></p>
 													<p class="fs-5 fw-bold mt-4">4. <span x-text="$t('addConfig')"></span></p>
 													<p x-text="$t('copyLinkBelow')"></p>
-													<button class="btn my-btn my-btn-accent w-100 text-break mb-4 btn-copy-sub-link" type="button">
+													<button class="btn my-btn my-btn-accent w-100 text-break mb-4 btn-copy-sub-link-base64" type="button">
 														<script type="text/javascript">
 															document.write(linkFullBase64);
 														</script>
@@ -1949,6 +1949,14 @@ document.addEventListener("DOMContentLoaded", function () {
 				document.querySelectorAll('.btn-copy-sub-link').forEach(button => {
 					button.addEventListener('click', () => {
 						navigator.clipboard.writeText(linkFull);
+						bootstrap.Toast.getOrCreateInstance(toastCopyLink).show();
+					});
+				});
+
+				// Copy subscription link base64 and show toast
+				document.querySelectorAll('.btn-copy-sub-link-base64').forEach(button => {
+					button.addEventListener('click', () => {
+						navigator.clipboard.writeText(linkFullBase64);
 						bootstrap.Toast.getOrCreateInstance(toastCopyLink).show();
 					});
 				});
