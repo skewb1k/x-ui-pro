@@ -10,7 +10,6 @@
 		<link href="https://raw.githubusercontent.com/streletskiy/marzban-sub-page/refs/heads/main/img/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 		<link rel="stylesheet" id="dynamic-stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 		<script>
 document.addEventListener("DOMContentLoaded", function () {
             toggleCustomTemplateInput();
@@ -227,7 +226,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 			
 			.my-link-separate {
-				font-family: -apple-system, Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", "Segoe UI", system-ui, "Segoe UI Symbol";
 				background-color: transparent;
 			}
 			
@@ -281,6 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 			
 			[data-bs-theme='dark'] {
+				--bs-font-sans-serif: "Twemoji Country Flags", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 				--bs-body-bg: #282a36;
 				--bs-secondary-bg: #35384b;
 				--bs-secondary-rgb: 53, 56, 75;
@@ -382,7 +381,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				<div class="modal-sm modal-dialog modal-dialog-centered">
 					<div class="text-bg-secondary modal-content border border-0 rounded-4 shadow-lg">
 						<div class="d-flex modal-header justify-content-between">
-							<h1 class="modal-title my-link-separate fw-bold fs-5" id="qrModalLabel"></h1>
+							<h1 class="modal-title fw-bold fs-5" id="qrModalLabel"></h1>
 							<button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body d-flex justify-content-center align-items-center">
@@ -1319,6 +1318,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/alpinejs-i18n@2.x.x/dist/cdn.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+		<script type="module" defer>
+			// Fix flags emoji in some browsers on Windows
+			import { polyfillCountryFlagEmojis } from "https://cdn.skypack.dev/country-flag-emoji-polyfill";
+			polyfillCountryFlagEmojis();
+		</script>
 		<script>  
 			// Tutorial images links
 			const images = {
