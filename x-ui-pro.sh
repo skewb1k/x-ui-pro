@@ -287,7 +287,7 @@ server {
         ssi on;
         ssi_types text/plain;
         # Присваиваем GET-параметр name переменной username
-        set \$username \$arg_name;
+        set \$username \$arg_subid;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
@@ -422,7 +422,7 @@ server {
         ssi on;
         ssi_types text/plain;
         # Присваиваем GET-параметр name переменной username
-        set \$username \$arg_name;
+        set \$username \$arg_subid;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
