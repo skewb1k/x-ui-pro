@@ -281,11 +281,14 @@ server {
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
 		proxy_pass http://127.0.0.1:8080/;
 		}
-    # Path to open clash.html and generate YAML
+    # Path to open clash.yaml and generate YAML
     location = /${web_path}/clash {
-        default_type text/html;
+        default_type text/plain;
+        ssi on;
+        ssi_types text/plain;
+        set $username $arg_name;
         root /var/www/subpage;
-        try_files $uri /clash.html =404;
+        try_files /clash.yaml =404;
     }
  	#Web Page Subscription Path
 	location ~ ^/${web_path} {
@@ -413,11 +416,14 @@ server {
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
 		proxy_pass http://127.0.0.1:8080/;
 		}
-    # Path to open clash.html and generate YAML
+    # Path to open clash.yaml and generate YAML
     location = /${web_path}/clash {
-        default_type text/html;
+        default_type text/plain;
+        ssi on;
+        ssi_types text/plain;
+        set $username $arg_name;
         root /var/www/subpage;
-        try_files $uri /clash.html =404;
+        try_files /clash.yaml =404;
     }
  	#Web Page Subscription Path
 	location ~ ^/${web_path} {
@@ -798,10 +804,10 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/
 ######################install_web_sub_page##############################################################
 
 URL_SUB_PAGE="https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
-URL_CLASH_SUB="https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.html"
+URL_CLASH_SUB="https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.yaml"
 DEST_DIR_SUB_PAGE="/var/www/subpage"
 DEST_FILE_SUB_PAGE="$DEST_DIR_SUB_PAGE/index.html"
-DEST_FILE_CLASH_SUB="$DEST_DIR_SUB_PAGE/clash.html"
+DEST_FILE_CLASH_SUB="$DEST_DIR_SUB_PAGE/clash.yaml"
 
 sudo mkdir -p "$DEST_DIR_SUB_PAGE"
 
