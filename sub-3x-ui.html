@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			
 			<!-- Subscription username and buttons -->
 			<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-				<span class="text-break fs-3 fw-bold"><span x-text="$t('subscriptionFor')">
+				<span class="text-break fs-3 fw-bold"><span x-text="$t('subscriptionFor')"></span></span>
 				<div>
 					<button class="btn my-btn btn-copy-sub-link" type="button" x-text="$t('copyLink')"></button>
 					<button class="btn my-btn btn-show-qr-sub" id="btn-show-qr-sub" data-bs-toggle="modal" data-bs-target="#qrModal" data-ignore="true">
@@ -1052,7 +1052,7 @@ document.addEventListener("DOMContentLoaded", function () {
 													<p x-text="$t('copyLinkBelow')"></p>
 													<button class="btn my-btn my-btn-accent w-100 text-break mb-4 btn-copy-sub-link" type="button">
 														<script type="text/javascript">
-															document.write(linkFull);
+															document.write(linkFullBase64);
 														</script>
 													</button>
 													<p x-text="$t('openAndPaste')"></p>
@@ -1108,7 +1108,7 @@ document.addEventListener("DOMContentLoaded", function () {
 													<p x-text="$t('copyLinkBelow')"></p>
 													<button class="btn my-btn my-btn-accent w-100 text-break mb-4 btn-copy-sub-link" type="button">
 														<script type="text/javascript">
-															document.write(linkFull);
+															document.write(linkFullBase64);
 														</script>
 													</button>
 													<p x-text="$t('openAndPaste')"></p>
