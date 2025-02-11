@@ -764,11 +764,11 @@ sysctl -p
 
 ######################install_sub2sing-box#################################################################
 
-wget -P /root/ https://github.com/nitezs/sub2sing-box/releases/download/v0.0.9-beta.2/sub2sing-box_0.0.9-beta.2_linux_amd64.tar.gz
-tar -xvzf /root/sub2sing-box_0.0.9-beta.2_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9-beta.2_linux_amd64/sub2sing-box
+wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9-beta.4/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
+tar -xvzf /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9-beta.4_linux_amd64/sub2sing-box
 mv /root/sub2sing-box /usr/bin/
 chmod +x /usr/bin/sub2sing-box
-rm /root/sub2sing-box_0.0.9-beta.2_linux_amd64.tar.gz
+rm /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
 su -c "/usr/bin/sub2sing-box server & disown" root
 
 ######################install_fake_site#################################################################
@@ -825,6 +825,7 @@ if systemctl is-active --quiet x-ui; then clear
 	echo -n "Password:  " && sqlite3 $XUIDB 'SELECT "password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
   msg_inf "Web Sub Page your first client: https://${domain}/${web_path}?name=first\n"
+  msg_inf "Your local sub2sing-box instance: https://${domain}/$sub2singbox_path/\n"
   msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	msg_inf "Please Save this Screen!!"	
 else
