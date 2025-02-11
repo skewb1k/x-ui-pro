@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash Configuration</title>
+</head>
+<body>
+    <pre id="yaml-content"></pre>
+
+    <script>
+        function getQueryParams() {
+            const params = {};
+            window.location.search.substring(1).split("&").forEach(param => {
+                const [key, value] = param.split("=");
+                params[decodeURIComponent(key)] = decodeURIComponent(value);
+            });
+            return params;
+        }
+
+        function generateYaml(username) {
+
+            return `
+mixed-port: 7890
+allow-lan: false
+log-level: info
+ipv6: false
+
+mode: rule
+dns:
+  enable: true
+  use-hosts: true
+  ipv6: false
+  enhanced-mode: redir-host
+  listen: 127.0.0.1:6868
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+    - 1.0.0.1
+  nameserver:
+    - https://1.1.1.1/dns-query#PROXY
+    - https://8.8.8.8/dns-query#PROXY
+    - https://1.0.0.1/dns-query#PROXY
+    - 8.8.8.8
+    - 1.1.1.1
+profile:
+  store-selected: true
+
+proxy-groups:
+  - name: PROXY
+    proxies:
+      - auto
+    use:
+      - base64
+    type: select
+
+  - name: auto
+    use:
+      - base64
+    type: url-test
+    url: http://cp.cloudflare.com
+    interval: 300
+    tolerance: 150
+    lazy: true
+
+proxy-providers:
+  base64:
+    type: http
+    url: "https://${DOMAIN}/${SUB_PATH}/${username}"
+    path: ./proxy_providers/base64.yml
+    interval: 3600
+    exclude-filter: "XHTTP"
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+      timeout: 5000
+      lazy: true
+      expected-status: 204
+
+rule-providers:
+  ru-bundle:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/ru-bundle/rule.mrs
+    path: ./ru-bundle/rule.mrs
+    interval: 86400
+rules:
+  - RULE-SET,ru-bundle,PROXY
+  - MATCH,DIRECT
+
+tun:
+  enable: true
+  stack: system
+  dns-hijack:
+    - any:53
+  auto-redir: true
+  auto-route: true
+  auto-detect-interface: true
+`;
+        }
+
+        window.onload = () => {
+            const params = getQueryParams();
+            const username = params.name || "default";
+            const yamlContent = generateYaml(username);
+            document.getElementById("yaml-content").textContent = yamlContent;
+            document.head.innerHTML += '<meta http-equiv="Content-Type" content="text/plain; charset=UTF-8">';
+        };
+    </script>
+</body>
+</html>
