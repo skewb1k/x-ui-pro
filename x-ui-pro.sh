@@ -43,7 +43,7 @@ make_port() {
 sub_port=$(make_port)
 panel_port=$(make_port)
 web_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+sub2singbox_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
@@ -274,7 +274,7 @@ server {
 		break;
 	}
   	#sub2sing-box
- location /${_path}/ {
+ location /${sub2singbox_path}/ {
     proxy_redirect off;
     proxy_set_header Host \$host;
     proxy_set_header X-Real-IP \$remote_addr;
@@ -400,7 +400,7 @@ server {
 		break;
 	}
    	#sub2sing-box
- location /${_path}/ {
+ location /${sub2singbox_path}/ {
     proxy_redirect off;
     proxy_set_header Host \$host;
     proxy_set_header X-Real-IP \$remote_addr;
@@ -796,7 +796,7 @@ sudo curl -L "$URL_SUB_PAGE" -o "$DEST_FILE_SUB_PAGE"
 sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_JSON_PATH}#$json_path#g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_SUB_PAGE"
-sed -i "s|sub.legiz.ru|$domain/$_path|g" "$DEST_FILE_SUB_PAGE"
+sed -i "s|sub.legiz.ru|$domain/$sub2singbox_path|g" "$DEST_FILE_SUB_PAGE"
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
