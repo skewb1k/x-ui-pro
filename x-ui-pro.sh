@@ -282,12 +282,11 @@ server {
 		proxy_pass http://127.0.0.1:8080/;
 		}
     # Path to open clash.yaml and generate YAML
-    location = /${web_path}/clash {
+    location ~ ^/${web_path}/clashmeta/(.+)$ {
         default_type text/plain;
         ssi on;
         ssi_types text/plain;
-        # Присваиваем GET-параметр name переменной username
-        set \$username \$arg_subid;
+        set \$subid \$1;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
@@ -417,12 +416,11 @@ server {
 		proxy_pass http://127.0.0.1:8080/;
 		}
     # Path to open clash.yaml and generate YAML
-    location = /${web_path}/clash {
+    location ~ ^/${web_path}/clashmeta/(.+)$ {
         default_type text/plain;
         ssi on;
         ssi_types text/plain;
-        # Присваиваем GET-параметр name переменной username
-        set \$username \$arg_subid;
+        set \$subid \$1;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
