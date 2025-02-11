@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			const linkFull = `${baseURL}?name=${username}`;
 			const linkFullBase64 = `https://${DOMAIN}/${SUB_PATH}/${username}`;
 			const linkFullXRAY = `https://${DOMAIN}/${SUB_JSON_PATH}/${username}`;
+			const linkFullClash = `${baseURL}/clash?name=${username}`;
 			var qrLink = linkFull;
 			const link64 = Base64.encode(linkFullBase64);
 			
@@ -109,13 +110,13 @@ document.addEventListener("DOMContentLoaded", function () {
 				document.getElementById("href-android-hiddify").href = `hiddify://import/${linkFullBase64}`;
 				document.getElementById("href-android-v2rayng").href = `v2rayng://install-config?url=${linkFullXRAY}&name=` + serviceName;
 				// document.getElementById("href-android-v2raytun").href = `v2raytun://import/${linkFull}#` + serviceName;
-				// document.getElementById("href-android-cmfa").href = `clash://install-config?url${linkFull}&name=` + serviceName;
+				document.getElementById("href-android-cmfa").href = `clash://install-config?url${linkFullClash}&name=` + serviceName;
 				// document.getElementById("href-android-singbox").href = `sing-box://import-remote-profile?url=${linkFullSB}#` + serviceName;
 				document.getElementById("href-android-happ").href = `happ://add/${linkFullBase64}`;
 				document.getElementById("href-windows-hiddify").href = `hiddify://import/${linkFullBase64}`;
 				document.getElementById("href-windows-invisibleman").href = `invxray://subscription/${linkFullXRAY}`;
-				// document.getElementById("href-windows-clashvergerev").href = `clash://install-config?url${linkFull}&name=` + serviceName;
-				// document.getElementById("href-linux-clashvergerev").href = `clash://install-config?url${linkFull}&name=` + serviceName;
+				document.getElementById("href-windows-clashvergerev").href = `clash://install-config?url${linkFullClash}&name=` + serviceName;
+				document.getElementById("href-linux-clashvergerev").href = `clash://install-config?url${linkFullClash}&name=` + serviceName;
 				
 				// Happ routing deeplinks
 				document.getElementById("href-ios-happ-RoscomVPN").href = `https://routing.vpn.ru.com/`;
@@ -512,36 +513,6 @@ document.addEventListener("DOMContentLoaded", function () {
 				</div>
 			</div>-->
 
-            <!--<div class="container mt-4">
-                <h2>Выберите шаблон для подписки</h2>
-                <div class="form-group">
-                  <label for="templateSelect">Шаблон:</label>
-                  <select id="templateSelect" class="form-control" onchange="toggleCustomTemplateInput()" required>
-                    <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/ru-bundle.json">
-                      ru-bundle
-                    </option>
-                    <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/ru-bundle-refilter.json">
-                      ru-bundle-refilter
-                    </option>
-                    <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/re-filter.json">
-                      re-filter
-                    </option>
-                    <option value="https://github.com/legiz-ru/sb-rule-sets/raw/main/.github/sub2sing-box/secret-sing-box.json">
-                      secret-sing-box
-                    </option>
-                    <option value="custom">Кастомный шаблон</option>
-                  </select>
-                </div>
-                <div class="form-group custom-input" id="customTemplateInput">
-                  <label for="customTemplateUrl">Введите URL шаблона:</label>
-                  <input
-                    type="text"
-                    id="customTemplateUrl"
-                    class="form-control"
-                    placeholder="https://example.com/path/to/template.json"
-                  />
-                </div>
-              </div>-->
           
 
 			<!-- Guides -->
@@ -896,7 +867,7 @@ document.addEventListener("DOMContentLoaded", function () {
 													</div>
 												</div>
 											</div>
-											<!-- Stay Tune Clash Meta <hr class="m-0">
+											<hr class="m-0">
 											<div class="accordion-item">
 												<h2 class="accordion-header">
 													<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#accordionOsAndroidCMFA" aria-expanded="false" aria-controls="accordionOsAndroidCMFA">
@@ -922,7 +893,7 @@ document.addEventListener("DOMContentLoaded", function () {
 														<p x-text="$t('CMFArunconfig')"></p>
 													</div>
 												</div>
-											</div>-->
+											</div>
 											<hr class="m-0">
 											<div class="accordion-item">
 												<h2 class="accordion-header">
@@ -1114,9 +1085,9 @@ document.addEventListener("DOMContentLoaded", function () {
 													<p class="fs-5 fw-bold mt-4">5. <span x-text="$t('doUpdate')"></span></p>
 													<p x-text="$t('v2rayNupdateSub')"></p>
 													<p class="fs-5 fw-bold mt-4">6. <span x-text="$t('tunWish')"></span></p>
-													<p x-text="$t('v2rayNtun1')"/></p>
-													<p x-text="$t('v2rayNtun2')"/></p>
-													<p x-text="$t('v2rayNtun3')"/></p>
+													<p x-text="$t('v2rayNtun1')"></p>
+													<p x-text="$t('v2rayNtun2')"></p>
+													<p x-text="$t('v2rayNtun3')"></p>
 													<p class="fs-5 fw-bold mt-4">7. <span x-text="$t('doRun')"></span></p>
 													<p x-text="$t('v2rayNrun1')"></p>
 													<p x-text="$t('v2rayNrun2')"></p>
@@ -1167,7 +1138,7 @@ document.addEventListener("DOMContentLoaded", function () {
 												</div>
 											</div>
 										</div>
-										<!-- Stay Tune Clash Verge Rev <hr class="m-0">
+										<hr class="m-0">
 										<div class="accordion-item">
 											<h2 class="accordion-header">
 												<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOsWindowsClashVergeRev" aria-expanded="false" aria-controls="collapseOsWindowsClashVergeRev">
@@ -1202,7 +1173,7 @@ document.addEventListener("DOMContentLoaded", function () {
 													</div>
 												</div>
 											</div>
-										</div> -->
+										</div>
 									</div>
 								</div>
 							</div>
@@ -1221,7 +1192,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					<div id="collapseLinux" class="accordion-collapse collapse" data-bs-parent="#accordionOs">
 						<div class="accordion" id="accordionOsLinux">
 							<div class="accordion-item">
-								<!-- Stay Tune Clash Verge Rev<hr class="m-0">
+								<hr class="m-0">
 								<h2 class="accordion-header">
 									<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#accordionOsLinuxClashVergeRev" aria-expanded="false" aria-controls="accordionOsLinuxClashVergeRev">
 										<svg class="my-icon-small"><use href="#clash-verge-rev"></use></svg>
@@ -1246,7 +1217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 										<p x-text="$t('ClashVergeRevAddConf1')"></p>
 										<p x-text="$t('ClashVergeRevOnSysProxy')"></p>
 									</div>
-								</div>-->
+								</div>
 								<hr class="m-0">
 								<div class="accordion-item">
 									<h2 class="accordion-header">

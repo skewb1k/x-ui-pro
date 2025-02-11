@@ -274,20 +274,26 @@ server {
 		break;
 	}
   	#sub2sing-box
- location /${sub2singbox_path}/ {
-    proxy_redirect off;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_pass http://127.0.0.1:8080/;
-}
- 	#Web Page Subscription Path
-  location ~ ^/${web_path} {
-    default_type application/json;
-    root /var/www/subpage;
-    index index.html;
-    try_files /index.html =404;
+	location /${sub2singbox_path}/ {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:8080/;
+		}
+    # Path to open clash.html and generate YAML
+    location = /${web_path}/clash {
+        default_type text/html;
+        root /var/www/subpage;
+        try_files $uri /clash.html =404;
     }
+ 	#Web Page Subscription Path
+	location ~ ^/${web_path} {
+		default_type application/json;
+		root /var/www/subpage;
+		index index.html;
+		try_files /index.html =404;
+		}
   #Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
@@ -399,21 +405,27 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
-   	#sub2sing-box
- location /${sub2singbox_path}/ {
-    proxy_redirect off;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_pass http://127.0.0.1:8080/;
-}
-  #Web Page Subscription Path
-  location ~ ^/${web_path} {
-    default_type application/json;
-    root /var/www/subpage;
-    index index.html;
-    try_files /index.html =404;
+  	#sub2sing-box
+	location /${sub2singbox_path}/ {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:8080/;
+		}
+    # Path to open clash.html and generate YAML
+    location = /${web_path}/clash {
+        default_type text/html;
+        root /var/www/subpage;
+        try_files $uri /clash.html =404;
     }
+ 	#Web Page Subscription Path
+	location ~ ^/${web_path} {
+		default_type application/json;
+		root /var/www/subpage;
+		index index.html;
+		try_files /index.html =404;
+		}
  	#Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
@@ -764,6 +776,14 @@ sysctl -p
 
 ######################install_sub2sing-box#################################################################
 
+if pgrep -x "sub2sing-box" > /dev/null; then
+    echo "kill sub2sing-box..."
+    pkill -x "sub2sing-box"
+fi
+if [ -f "/usr/bin/sub2sing-box" ]; then
+    echo "delete sub2sing-box..."
+    rm -f /usr/bin/sub2sing-box
+fi
 wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9-beta.4/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
 tar -xvzf /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9-beta.4_linux_amd64/sub2sing-box
 mv /root/sub2sing-box /usr/bin/
@@ -778,16 +798,21 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/
 ######################install_web_sub_page##############################################################
 
 URL_SUB_PAGE="https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
+URL_CLASH_SUB="https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.html"
 DEST_DIR_SUB_PAGE="/var/www/subpage"
 DEST_FILE_SUB_PAGE="$DEST_DIR_SUB_PAGE/index.html"
+DEST_FILE_CLASH_SUB="$DEST_DIR_SUB_PAGE/clash.html"
 
 sudo mkdir -p "$DEST_DIR_SUB_PAGE"
 
+sudo curl -L "$URL_c" -o "$DEST_FILE_CLASH_SUB"
 sudo curl -L "$URL_SUB_PAGE" -o "$DEST_FILE_SUB_PAGE"
 
 sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
+sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_CLASH_SUB"
 sed -i "s#\${SUB_JSON_PATH}#$json_path#g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_SUB_PAGE"
+sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_CLASH_SUB"
 sed -i "s|sub.legiz.ru|$domain/$sub2singbox_path|g" "$DEST_FILE_SUB_PAGE"
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
