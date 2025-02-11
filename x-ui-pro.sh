@@ -287,7 +287,7 @@ server {
         ssi on;
         ssi_types text/plain;
         # Присваиваем GET-параметр name переменной username
-        set $username $arg_name;
+        set \$username \$arg_name;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
@@ -295,7 +295,7 @@ server {
     location ~ ^/${web_path} {
         root /var/www/subpage;
         index index.html;
-        try_files $uri $uri/ /index.html =404;
+        try_files \$uri \$uri/ /index.html =404;
     }
  	#Subscription Path (simple/encode)
         location /${sub_path} {
@@ -422,7 +422,7 @@ server {
         ssi on;
         ssi_types text/plain;
         # Присваиваем GET-параметр name переменной username
-        set $username $arg_name;
+        set \$username \$arg_name;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
@@ -430,7 +430,7 @@ server {
     location ~ ^/${web_path} {
         root /var/www/subpage;
         index index.html;
-        try_files $uri $uri/ /index.html =404;
+        try_files \$uri \$uri/ /index.html =404;
     }
  	#Subscription Path (simple/encode)
         location /${sub_path} {
