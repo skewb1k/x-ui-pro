@@ -805,7 +805,7 @@ DEST_FILE_CLASH_SUB="$DEST_DIR_SUB_PAGE/clash.html"
 
 sudo mkdir -p "$DEST_DIR_SUB_PAGE"
 
-sudo curl -L "$URL_c" -o "$DEST_FILE_CLASH_SUB"
+sudo curl -L "$URL_CLASH_SUB" -o "$DEST_FILE_CLASH_SUB"
 sudo curl -L "$URL_SUB_PAGE" -o "$DEST_FILE_SUB_PAGE"
 
 sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
