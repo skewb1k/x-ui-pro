@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				basePath = basePath.slice(0, -1);
 			}
 			const baseURL = window.location.origin + basePath;
-			const linkFull = `https://${baseURL}?name=${username}`;
+			const linkFull = `${baseURL}?name=${username}`;
 			const linkFullBase64 = `https://${DOMAIN}/${SUB_PATH}/${username}`;
 			const linkFullXRAY = `https://${DOMAIN}/${SUB_JSON_PATH}/${username}`;
 			var qrLink = linkFull;
