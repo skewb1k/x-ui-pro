@@ -44,7 +44,7 @@ proxy-groups:
 proxy-providers:
   base64:
     type: http
-    url: https://${DOMAIN}/${SUB_PATH}/<!--# echo var="username" -->
+    url: https://${DOMAIN}/${SUB_PATH}/<!--# echo var="subid" -->
     path: ./proxy_providers/base64.yml
     interval: 3600
     health-check:
