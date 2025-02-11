@@ -286,18 +286,18 @@ server {
         default_type text/plain;
         ssi on;
         ssi_types text/plain;
+        # Присваиваем GET-параметр name переменной username
         set $username $arg_name;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
- 	#Web Page Subscription Path
-	location ~ ^/${web_path} {
-		default_type application/json;
-		root /var/www/subpage;
-		index index.html;
-		try_files /index.html =404;
-		}
-  #Subscription Path (simple/encode)
+    # web
+    location ~ ^/${web_path} {
+        root /var/www/subpage;
+        index index.html;
+        try_files $uri $uri/ /index.html =404;
+    }
+ 	#Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
                 proxy_redirect off;
@@ -421,17 +421,17 @@ server {
         default_type text/plain;
         ssi on;
         ssi_types text/plain;
+        # Присваиваем GET-параметр name переменной username
         set $username $arg_name;
         root /var/www/subpage;
         try_files /clash.yaml =404;
     }
- 	#Web Page Subscription Path
-	location ~ ^/${web_path} {
-		default_type application/json;
-		root /var/www/subpage;
-		index index.html;
-		try_files /index.html =404;
-		}
+    # web
+    location ~ ^/${web_path} {
+        root /var/www/subpage;
+        index index.html;
+        try_files $uri $uri/ /index.html =404;
+    }
  	#Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
