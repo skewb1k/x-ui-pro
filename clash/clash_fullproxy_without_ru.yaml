@@ -56,20 +56,26 @@ proxy-providers:
       expected-status: 204
 
 rule-providers:
-  ru-bundle:
+  geosite-ru:
     type: http
     behavior: domain
     format: mrs
-    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/ru-bundle/rule.mrs
-    path: ./ru-bundle/rule.mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/category-ru.mrs
+    path: ./geosite-ru.mrs
+    interval: 86400
+  geoip-ru:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/ru.mrs
+    path: ./geoip-ru.mrs
     interval: 86400
 
 rules:
   - PROCESS-NAME,Discord.exe,PROXY
-  - PROCESS-NAME,com.supercell.clashofclans,PROXY
-  - PROCESS-NAME,com.supercell.brawlstars,PROXY
-  - RULE-SET,ru-bundle,PROXY
-  - MATCH,DIRECT
+  - RULE-SET,geosite-ru,DIRECT
+  - RULE-SET,geoip-ru,DIRECT
+  - MATCH,PROXY
 
 tun:
   enable: true
