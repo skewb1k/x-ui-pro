@@ -5,6 +5,9 @@
 - Multi-user and config via port **443**
 - Auto enabled subscriptions via port **443**
 - Auto configured VLESS+Reality and VLESSoverWebSocket
+- **Custom Web Sub Page**
+- Feature that allows the use of **custom client configurations for SING-BOX & CLASH META**
+- **Local instance sub2sing-box**
 - Auto configured Firewall
 - More security and low detection with nginx
 - Compatible with Cloudflare (only for WebSocket/GRPC)
@@ -28,9 +31,7 @@ sudo su -c "bash <(wget -qO- https://github.com/legiz-ru/x-ui-pro/raw/master/x-u
 ```
 > 
 > Do not change SubDomain for renew SSL❗
-> ##
-> panel (0=alireza 1=MHSanaei)
-> 
+
 
 **Uninstall X-UI-PRO**:x:
 ```
@@ -43,12 +44,20 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/
 ```
 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
-### Server Configuration :wrench:🐧⚙️
+### Screenshots :wrench:🐧⚙️
 >
-Reality example
+**How to open custom web sub page?**
 >
-![](https://github.com/mozaroc/x-ui-pro/blob/master/media/new_screen_old.png?raw=true)
+![](https://github.com/legiz-ru/x-ui-pro/blob/master/media/CustomWebSubHow2Open.png?raw=true)
 >
-WebSocket example
+**Main Page custom web sub**
 >
-![](https://github.com/mozaroc/x-ui-pro/blob/master/media/vlessandws.png?raw=true)
+![](https://github.com/legiz-ru/x-ui-pro/blob/master/media/CustomWebSub.png?raw=true)
+>
+**sub2sing-box section on custom web sub page**
+>
+![](https://github.com/legiz-ru/x-ui-pro/blob/master/media/CustomWebSubSingBox.png?raw=true)
+>
+**local instance sub2sing-box fork by legiz**
+>
+![](https://github.com/legiz-ru/x-ui-pro/blob/master/media/sub2sing.png?raw=true)
