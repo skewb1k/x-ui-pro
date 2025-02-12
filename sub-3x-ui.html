@@ -796,29 +796,27 @@ document.addEventListener("DOMContentLoaded", function () {
 								<div class="accordion-item">
 									<hr class="m-0">
 									<h2 class="accordion-header">
-										<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#accordionOsAndroidHiddify" aria-expanded="false" aria-controls="accordionOsAndroidHiddify">
-											<svg class="my-icon-small"><use href="#hiddify"></use></svg>
+										<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#accordionOsAndroidCMFA" aria-expanded="false" aria-controls="accordionOsAndroidCMFA">
+											<svg class="my-icon"><use href="#clash-meta"></use></svg>
 											<span class="d-block w-100 text-center">
-												Hiddify🔥
+												Clash Meta🔥
 											</span>
 										</button>
 									</h2>
-									<div id="accordionOsAndroidHiddify" class="accordion-collapse collapse show" data-bs-parent="#accordionOsAndroid">
+									<div id="accordionOsAndroidCMFA" class="accordion-collapse collapse show" data-bs-parent="#accordionOsAndroid">
 										<div class="container pb-4">
 											<p class="fs-5 fw-bold">1. <span x-text="$t('getApp')"></span></p>
 											<p x-text="$t('getAppDescription')"></p>
-											<a href="https://play.google.com/store/apps/details?id=app.hiddify.com">
+											<a id="cmfa" href="#">
 												<button type="button" class="btn my-btn my-btn-accent w-100" x-text="$t('downloadApp')"></button>
 											</a>
 											<p class="fs-5 fw-bold mt-4">2. <span x-text="$t('addConfig')"></span></p>
-											<p x-text="$t('addConfigDescription')"></p>
-											<a id="href-android-hiddify">
+											<p x-text="$t('CMFAaddconfig')"></p>
+											<a id="href-android-cmfa">
 												<button type="button" class="btn my-btn my-btn-accent w-100" x-text="$t('addConfigApp')"></button>
 											</a>
 											<p class="fs-5 fw-bold mt-4">3. <span x-text="$t('doRun')"></span></p>
-											<p x-text="$t('hiddifyAdditional1')"></p>
-											<p x-text="$t('hiddifyAdditional2')"></p>
-											<p x-text="$t('hiddifyAdditional3')"></p>
+											<p x-text="$t('CMFArunconfig')"></p>
 										</div>
 									</div>
 								</div>
@@ -870,27 +868,29 @@ document.addEventListener("DOMContentLoaded", function () {
 											<hr class="m-0">
 											<div class="accordion-item">
 												<h2 class="accordion-header">
-													<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#accordionOsAndroidCMFA" aria-expanded="false" aria-controls="accordionOsAndroidCMFA">
-														<svg class="my-icon"><use href="#clash-meta"></use></svg>
+													<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#accordionOsAndroidHiddify" aria-expanded="false" aria-controls="accordionOsAndroidHiddify">
+														<svg class="my-icon-small"><use href="#hiddify"></use></svg>
 														<span class="d-block w-100 text-center">
-															Clash Meta
+															Hiddify
 														</span>
 													</button>
 												</h2>
-												<div id="accordionOsAndroidCMFA" class="accordion-collapse collapse" data-bs-parent="#accordionOsAndroidAltList">
+												<div id="accordionOsAndroidHiddify" class="accordion-collapse collapse" data-bs-parent="#accordionOsAndroidAltList">
 													<div class="container pb-4">
 														<p class="fs-5 fw-bold">1. <span x-text="$t('getApp')"></span></p>
 														<p x-text="$t('getAppDescription')"></p>
-														<a id="cmfa" href="#">
+														<a href="https://play.google.com/store/apps/details?id=app.hiddify.com">
 															<button type="button" class="btn my-btn my-btn-accent w-100" x-text="$t('downloadApp')"></button>
 														</a>
 														<p class="fs-5 fw-bold mt-4">2. <span x-text="$t('addConfig')"></span></p>
-														<p x-text="$t('CMFAaddconfig')"></p>
-														<a id="href-android-cmfa">
+														<p x-text="$t('addConfigDescription')"></p>
+														<a id="href-android-hiddify">
 															<button type="button" class="btn my-btn my-btn-accent w-100" x-text="$t('addConfigApp')"></button>
 														</a>
 														<p class="fs-5 fw-bold mt-4">3. <span x-text="$t('doRun')"></span></p>
-														<p x-text="$t('CMFArunconfig')"></p>
+														<p x-text="$t('hiddifyAdditional1')"></p>
+														<p x-text="$t('hiddifyAdditional2')"></p>
+														<p x-text="$t('hiddifyAdditional3')"></p>
 													</div>
 												</div>
 											</div>
@@ -948,7 +948,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					</h2>
 					<div id="collapseWindows" class="accordion-collapse collapse" data-bs-parent="#accordionOs">
 						<div class="accordion" id="accordionOsWindows">
-							
+							<hr class="m-0">
 							<div class="accordion-item">
 								<h2 class="accordion-header">
 									<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOsWindowsInvisibleman" aria-expanded="false" aria-controls="collapseOsWindowsInvisibleman">
@@ -1232,7 +1232,7 @@ document.addEventListener("DOMContentLoaded", function () {
 											<button type="button" class="btn my-btn my-btn-accent w-100 mb-3" x-text="$t('linuxExampleV2rayA')"></button>
 										</a>
 										<p x-text="$t('linux2')"></p>
-										<button class="btn my-btn my-btn-accent w-100 text-break btn-copy-sub-link mb-4" type="button">
+										<button class="btn my-btn my-btn-accent w-100 text-break btn-copy-sub-link-base64 mb-4" type="button">
 											<script type="text/javascript">
 												document.write(linkFullBase64);
 											</script>
