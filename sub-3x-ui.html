@@ -1244,34 +1244,47 @@ document.addEventListener("DOMContentLoaded", function () {
 					</div>
 				</div>
 				
-				<!-- Separate servers links start --><!--
-				{% if user.status == 'active' %}
+				<!-- Separate servers links start -->
 				<div class="accordion-item rounded-4 px-3 mb-2">
 					<h2 class="accordion-header">
 						<button class="accordion-button collapsed fs-5 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLinks" aria-expanded="false" aria-controls="collapseLinks">
-							<i class="bi bi-geo-alt-fill mb-2"></i>
-							<span class="d-block w-100 text-center" x-text="$t('separateLinksTitle')"></span>
+							<i class="bi bi-gear-wide-connected mb-2"></i>
+							<span class="d-block w-100 text-center" x-text="$t('x_ui_pro')"></span>
 						</button>
 					</h2>
 					<div id="collapseLinks" class="accordion-collapse collapse" data-bs-parent="#accordionOs">
 						<div class="pb-2">
 							<p x-text="$t('separateLinks1')"></p>
-							<p x-text="$t('separateLinks2')"></p>
-							{% for link in user.links %}
-							<div class="input-group input-group-lg border border-0 text-bg-dark rounded-4 mb-3">	
-								<input class="form-control my-link-separate border border-0 ps-4" type="text" value="{{ link }}" disabled readonly>
-								<button class="btn my-btn btn-copy-link fs-5 mt-2 mb-2 rounded-3 pb-2 pt-1" data-link="{{ link }}">
+							<div class="input-group input-group-lg border border-0 text-bg-dark rounded-4 mb-3">    
+								<input class="form-control my-link-separate border border-0 ps-4" type="text" x-bind:value="$t('x_ui_pro_base64')" disabled readonly>
+								<button class="btn my-btn btn-copy-link fs-5 mt-2 mb-2 rounded-3 pb-2 pt-1" :data-link="linkFullBase64">
 									<i class="bi bi-clipboard2-fill"></i>
 								</button>
-								<button class="btn my-btn btn-show-qr m-2 rounded-3" id="btn-show-qr" data-bs-toggle="modal" data-bs-target="#qrModal" data-ignore="true" data-link="{{ link }}">
+								<button class="btn my-btn btn-show-qr m-2 rounded-3" id="btn-show-qr" data-bs-toggle="modal" data-bs-target="#qrModal" data-ignore="true" :data-link="linkFullBase64">
 									<svg class="bi"><use href="#qr"></use></svg>
 								</button>
 							</div>
-							{% endfor %}
+							<div class="input-group input-group-lg border border-0 text-bg-dark rounded-4 mb-3">    
+								<input class="form-control my-link-separate border border-0 ps-4" type="text" x-bind:value="$t('x_ui_pro_xray_json')" disabled readonly>
+								<button class="btn my-btn btn-copy-link fs-5 mt-2 mb-2 rounded-3 pb-2 pt-1" :data-link="linkFullXRAY">
+									<i class="bi bi-clipboard2-fill"></i>
+								</button>
+								<button class="btn my-btn btn-show-qr m-2 rounded-3" id="btn-show-qr" data-bs-toggle="modal" data-bs-target="#qrModal" data-ignore="true" :data-link="linkFullXRAY">
+									<svg class="bi"><use href="#qr"></use></svg>
+								</button>
+							</div>
+							<div class="input-group input-group-lg border border-0 text-bg-dark rounded-4 mb-3">    
+								<input class="form-control my-link-separate border border-0 ps-4" type="text" x-bind:value="$t('x_ui_pro_clashmeta')" disabled readonly>
+								<button class="btn my-btn btn-copy-link fs-5 mt-2 mb-2 rounded-3 pb-2 pt-1" :data-link="linkFullClash">
+									<i class="bi bi-clipboard2-fill"></i>
+								</button>
+								<button class="btn my-btn btn-show-qr m-2 rounded-3" id="btn-show-qr" data-bs-toggle="modal" data-bs-target="#qrModal" data-ignore="true" :data-link="linkFullClash">
+									<svg class="bi"><use href="#qr"></use></svg>
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
-				{% endif %}-->
 				<!-- Separate servers links end -->
 				
 			</div>
@@ -1369,6 +1382,12 @@ document.addEventListener("DOMContentLoaded", function () {
 					sub2sb_customtemplate: 'Your template',
 					sub2sb_customtemplateurl: 'Enter template URL:',
 					sub2sb_copylink: 'Click for Copy',
+
+					//x-ui-pro
+					x_ui_pro: 'List of Available Configurations',
+					x_ui_pro_base64: 'Basic Subscription',
+					x_ui_pro_xray_json: 'XRAY JSON Subscription',
+					x_ui_pro_clashmeta: 'Clash Meta Subscription',
 					
 					//v2box
 					v2boxStart: 'In the "Configs" tab, the subscription will appear. Click on the desired server and start it in the "Home" tab.',
@@ -1496,6 +1515,12 @@ document.addEventListener("DOMContentLoaded", function () {
 					sub2sb_customtemplate: 'Кастомный шаблон',
 					sub2sb_customtemplateurl: 'Введите cсылку на шаблон:',
 					sub2sb_copylink: 'Нажмите для копирования',
+
+					//x-ui-pro
+					x_ui_pro: 'Список доступных конфигураций',
+					x_ui_pro_base64: 'Базовая подписка',
+					x_ui_pro_xray_json: 'Подписка XRAY JSON',
+					x_ui_pro_clashmeta: 'Подписка Clash Meta',
 					
 					//v2box
 					v2boxStart: 'Во вкладке "Configs" появится подписка, тыкните на нужный сервер и запустите во вкладке "Home"',
@@ -1624,6 +1649,12 @@ document.addEventListener("DOMContentLoaded", function () {
 					sub2sb_customtemplateurl: '输入模板网址：',  
 					sub2sb_copylink: '点击复制',  
 
+					//x-ui-pro
+					x_ui_pro: '可用配置列表',
+					x_ui_pro_base64: '基本订阅',
+					x_ui_pro_xray_json: 'XRAY JSON 订阅',
+					x_ui_pro_clashmeta: 'Clash Meta 订阅',
+					
 					//v2box
 					v2boxStart: '在 "配置" 选项卡中，订阅将出现。点击所需的服务器并在 "主页" 选项卡中启动它。',
 					
@@ -1750,7 +1781,13 @@ document.addEventListener("DOMContentLoaded", function () {
 					sub2sb_customtemplate: 'قالب شما',  
 					sub2sb_customtemplateurl: 'آدرس قالب را وارد کنید:', 
 					sub2sb_copylink: 'برای کپی کلیک کنید',  
-				
+
+					//x-ui-pro
+					x_ui_pro: 'لیست پیکربندی‌های موجود',
+					x_ui_pro_base64: 'لیست پیکربندی‌های موجود',
+					x_ui_pro_xray_json: 'شتراک XRAY JSON',
+					x_ui_pro_clashmeta: 'شتراک CLASH META',
+					
 					//v2box
 					v2boxStart: 'در تب "تنظیمات"، اشتراک ظاهر خواهد شد. روی سرور موردنظر کلیک کرده و در تب "خانه" آن را شروع کنید.',
 					
