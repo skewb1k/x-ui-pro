@@ -9,7 +9,7 @@ echo;msg_inf '           ___    _   _   _  '	;
 msg_inf		 ' \/ __ | |  | __ |_) |_) / \ '	;
 msg_inf		 ' /\    |_| _|_   |   | \ \_/ '	; echo
 ##################################Variables#############################################################
-XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n"
+XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n";CLASH=0;CUSTOMWEBSUB=0
 Pak=$(type apt &>/dev/null && echo "apt" || echo "yum")
 systemctl stop x-ui
 rm -rf /etc/systemd/system/x-ui.service
@@ -68,6 +68,8 @@ while [ "$#" -gt 0 ]; do
     -subdomain) domain="$2"; shift 2;;
     -reality_domain) reality_domain="$2"; shift 2;;
     -ONLY_CF_IP_ALLOW) CFALLOW="$2"; shift 2;;
+    -websub) CUSTOMWEBSUB="$2"; shift 2;;
+    -clash) CLASH="$2"; shift 2;;
     -uninstall) UNINSTALL="$2"; shift 2;;
     *) shift 1;;
   esac
@@ -258,7 +260,7 @@ server {
 	proxy_intercept_errors on;
 	#X-UI Admin Panel
 	location /${panel_path}/ {
-		proxy_redirect off;
+		proxy_irect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -801,16 +803,21 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/
 
 ######################install_web_sub_page##############################################################
 
-URL_SUB_PAGE="https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
-URL_CLASH_SUB="https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.yaml"
+URL_SUB_PAGE=( "https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui-classical.html"
+	)
+URL_CLASH_SUB=( "https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.yaml"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_skrepysh.yaml"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/_fullproxy_without_ru.yaml"
+	)
 DEST_DIR_SUB_PAGE="/var/www/subpage"
 DEST_FILE_SUB_PAGE="$DEST_DIR_SUB_PAGE/index.html"
 DEST_FILE_CLASH_SUB="$DEST_DIR_SUB_PAGE/clash.yaml"
 
 sudo mkdir -p "$DEST_DIR_SUB_PAGE"
 
-sudo curl -L "$URL_CLASH_SUB" -o "$DEST_FILE_CLASH_SUB"
-sudo curl -L "$URL_SUB_PAGE" -o "$DEST_FILE_SUB_PAGE"
+sudo curl -L "${URL_CLASH_SUB[$CLASH]}" -o "$DEST_FILE_CLASH_SUB"
+sudo curl -L "${URL_SUB_PAGE[$CUSTOMWEBSUB]}" -o "$DEST_FILE_SUB_PAGE"
 
 sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
 sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_CLASH_SUB"
@@ -818,6 +825,15 @@ sed -i "s#\${SUB_JSON_PATH}#$json_path#g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_SUB_PAGE"
 sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_CLASH_SUB"
 sed -i "s|sub.legiz.ru|$domain/$sub2singbox_path|g" "$DEST_FILE_SUB_PAGE"
+
+while true; do	
+	if [[ -n "$tg_escaped_link" ]]; then
+		break
+	fi
+	echo -en "Enter your support link for web sub page (example https://t.me/durov/ ): " && read tg_escaped_link
+done
+
+sed -i -e "s|https://t.me/gozargah_marzban|$tg_escaped_link|g" -e "s|https://github.com/Gozargah/Marzban#donation|$tg_escaped_link|g" "$DEST_FILE_SUB_PAGE/subscription/index.html"
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
