@@ -260,7 +260,7 @@ server {
 	proxy_intercept_errors on;
 	#X-UI Admin Panel
 	location /${panel_path}/ {
-		proxy_irect off;
+		proxy_redirect off;
 		proxy_set_header Host \$host;
 		proxy_set_header X-Real-IP \$remote_addr;
 		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
