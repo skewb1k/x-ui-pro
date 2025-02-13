@@ -770,76 +770,77 @@ if [[ -f $XUIDB ]]; then
   "concurrency": 3
 }'
 	     );
-             INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
-             '1',
-	     '0',
-             '0',
-	     '0',
-             'vless_xhttp',
-	     '1',
-             '0',
-	     '',
-             '0',
-	     'vless',
-             '{
-  "clients": [
-    {
-      "id": "${client_id3}",
-      "flow": "",
-      "email": "first_x",
-      "limitIp": 0,
-      "totalGB": 0,
-      "expiryTime": 0,
-      "enable": true,
-      "tgId": "",
-      "subId": "first",
-      "reset": 0
-    }
-  ],
-  "decryption": "none",
-  "fallbacks": []
-}','{
-  "network": "xhttp",
-  "security": "none",
-  "externalProxy": [
-    {
-      "forceTls": "tls",
-      "dest": "${domain}",
-      "port": 443,
-      "remark": ""
-    }
-  ],
-  "xhttpSettings": {
-    "path": "/${xhttp_path}",
-    "host": "",
-    "headers": {},
-    "scMaxBufferedPosts": 30,
-    "scMaxEachPostBytes": "1000000",
-    "noSSEHeader": false,
-    "xPaddingBytes": "100-1000",
-    "mode": "packet-up"
-  },
-  "sockopt": {
-    "acceptProxyProtocol": false,
-    "tcpFastOpen": true,
-    "mark": 0,
-    "tproxy": "off",
-    "tcpMptcp": true,
-    "tcpNoDelay": true,
-    "domainStrategy": "UseIP",
-    "tcpMaxSeg": 1440,
-    "dialerProxy": "",
-    "tcpKeepAliveInterval": 0,
-    "tcpKeepAliveIdle": 300,
-    "tcpUserTimeout": 10000,
-    "tcpcongestion": "bbr",
-    "V6Only": false,
-    "tcpWindowClamp": 600,
-    "interface": ""
-  }
-             'inbound-xhttp',
-	     '{
-  "enabled": false,
+INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","sniffing","allocate") VALUES ( 
+    '1',
+    '0',
+    '0',
+    '0',
+    'vless_x',
+    '1',
+    '0',
+    '',
+    '',
+    'vless',
+    '{
+        "clients": [
+            {
+                "id": "${client_id3}",
+                "flow": "",
+                "email": "first_x",
+                "limitIp": 0,
+                "totalGB": 0,
+                "expiryTime": 0,
+                "enable": true,
+                "tgId": "",
+                "subId": "first",
+                "reset": 0
+            }
+        ],
+        "decryption": "none",
+        "fallbacks": []
+    }',
+    '{
+        "network": "xhttp",
+        "security": "none",
+        "externalProxy": [
+            {
+                "forceTls": "tls",
+                "dest": "${domain}",
+                "port": 443,
+                "remark": ""
+            }
+        ],
+        "xhttpSettings": {
+            "path": "/${xhttp_path}",
+            "host": "",
+            "headers": {},
+            "scMaxBufferedPosts": 30,
+            "scMaxEachPostBytes": "1000000",
+            "noSSEHeader": false,
+            "xPaddingBytes": "100-1000",
+            "mode": "packet-up"
+        },
+        "sockopt": {
+            "acceptProxyProtocol": false,
+            "tcpFastOpen": true,
+            "mark": 0,
+            "tproxy": "off",
+            "tcpMptcp": true,
+            "tcpNoDelay": true,
+            "domainStrategy": "UseIP",
+            "tcpMaxSeg": 1440,
+            "dialerProxy": "",
+            "tcpKeepAliveInterval": 0,
+            "tcpKeepAliveIdle": 300,
+            "tcpUserTimeout": 10000,
+            "tcpcongestion": "bbr",
+            "V6Only": false,
+            "tcpWindowClamp": 600,
+            "interface": ""
+        }
+    }',
+    '{
+  "enabled": true,
   "destOverride": [
     "http",
     "tls",
@@ -849,12 +850,12 @@ if [[ -f $XUIDB ]]; then
   "metadataOnly": false,
   "routeOnly": false
 }',
-'{
-  "strategy": "always",
-  "refresh": 5,
-  "concurrency": 3
-}'
-	     );
+    '{
+        "strategy": "always",
+        "refresh": 5,
+        "concurrency": 3
+    }'
+);
 EOF
 x-ui start
 else
