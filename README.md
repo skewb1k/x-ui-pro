@@ -27,7 +27,7 @@
 ### Install X-UI-PRO
 
 ```
-sudo su -c "bash <(wget -qO- https://github.com/legiz-ru/x-ui-pro/raw/master/x-ui-pro.sh) -install yes -panel 1 -ONLY_CF_IP_ALLOW no"
+bash <(wget -qO- https://github.com/legiz-ru/x-ui-pro/raw/master/x-ui-pro.sh) -install yes -panel 1 -ONLY_CF_IP_ALLOW no
 ```
 > 
 > Do not change SubDomain for renew SSL❗
