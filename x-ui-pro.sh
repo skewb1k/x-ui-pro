@@ -136,7 +136,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
-	$Pak -y install curl wget bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
+	$Pak -y install curl wget jq bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -568,9 +568,10 @@ if [[ -f $XUIDB ]]; then
         var2=($var1)
         private_key=${var2[2]}
         public_key=${var2[5]}
-	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         client_id2=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
        	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
@@ -619,7 +620,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'reality',
+             '${emoji_flag} reality',
 	     '1',
              '0',
 	     '',
@@ -712,7 +713,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'vless_ws',
+             '${emoji_flag} ws',
 	     '1',
              '0',
 	     '',
@@ -776,7 +777,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'vless_x',
+             '${emoji_flag} xhttp',
 	     '1',
              '0',
 	     '/dev/shm/uds2023.sock,0666',
@@ -787,7 +788,7 @@ if [[ -f $XUIDB ]]; then
     {
       "id": "${client_id3}",
       "flow": "",
-      "email": "first_x",
+      "email": "firstX",
       "limitIp": 0,
       "totalGB": 0,
       "expiryTime": 0,
