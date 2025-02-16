@@ -136,7 +136,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
-	$Pak -y install curl wget bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
+	$Pak -y install curl wget jq bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -568,9 +568,10 @@ if [[ -f $XUIDB ]]; then
         var2=($var1)
         private_key=${var2[2]}
         public_key=${var2[5]}
-	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         client_id2=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
        	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
@@ -619,7 +620,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'reality',
+             '${emoji_flag} reality',
 	     '1',
              '0',
 	     '',
@@ -712,7 +713,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'vless_ws',
+             '${emoji_flag} ws',
 	     '1',
              '0',
 	     '',
@@ -776,7 +777,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'vless_x',
+             '${emoji_flag} xhttp',
 	     '1',
              '0',
 	     '/dev/shm/uds2023.sock,0666',
@@ -787,7 +788,7 @@ if [[ -f $XUIDB ]]; then
     {
       "id": "${client_id3}",
       "flow": "",
-      "email": "first_x",
+      "email": "firstX",
       "limitIp": 0,
       "totalGB": 0,
       "expiryTime": 0,
@@ -907,12 +908,12 @@ if [ -f "/usr/bin/sub2sing-box" ]; then
     echo "delete sub2sing-box..."
     rm -f /usr/bin/sub2sing-box
 fi
-wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9-beta.4/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
-tar -xvzf /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9-beta.4_linux_amd64/sub2sing-box
+wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9/sub2sing-box_0.0.9_linux_amd64.tar.gz
+tar -xvzf /root/sub2sing-box_0.0.9_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9_linux_amd64/sub2sing-box
 mv /root/sub2sing-box /usr/bin/
 chmod +x /usr/bin/sub2sing-box
-rm /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
-su -c "/usr/bin/sub2sing-box server & disown" root
+rm /root/sub2sing-box_0.0.9_linux_amd64.tar.gz
+su -c "/usr/bin/sub2sing-box server --bind 127.0.0.1 --port 8080 & disown" root
 
 ######################install_fake_site#################################################################
 
@@ -925,7 +926,8 @@ URL_SUB_PAGE=( "https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
 	)
 URL_CLASH_SUB=( "https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.yaml"
 		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_skrepysh.yaml"
-		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/_fullproxy_without_ru.yaml"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_fullproxy_without_ru.yaml"
+  		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_refilter_ech.yaml"
 	)
 DEST_DIR_SUB_PAGE="/var/www/subpage"
 DEST_FILE_SUB_PAGE="$DEST_DIR_SUB_PAGE/index.html"
@@ -954,7 +956,7 @@ sed -i -e "s|https://t.me/gozargah_marzban|$tg_escaped_link|g" -e "s|https://git
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
-(crontab -l 2>/dev/null; echo '@reboot /usr/bin/sub2sing-box server > /dev/null 2>&1') | crontab -
+(crontab -l 2>/dev/null; echo '@reboot /usr/bin/sub2sing-box server --bind 127.0.0.1 --port 8080 > /dev/null 2>&1') | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
 (crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
