@@ -908,12 +908,12 @@ if [ -f "/usr/bin/sub2sing-box" ]; then
     echo "delete sub2sing-box..."
     rm -f /usr/bin/sub2sing-box
 fi
-wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9-beta.4/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
-tar -xvzf /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9-beta.4_linux_amd64/sub2sing-box
+wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9/sub2sing-box_0.0.9_linux_amd64.tar.gz
+tar -xvzf /root/sub2sing-box_0.0.9_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9_linux_amd64/sub2sing-box
 mv /root/sub2sing-box /usr/bin/
 chmod +x /usr/bin/sub2sing-box
-rm /root/sub2sing-box_0.0.9-beta.4_linux_amd64.tar.gz
-su -c "/usr/bin/sub2sing-box server & disown" root
+rm /root/sub2sing-box_0.0.9_linux_amd64.tar.gz
+su -c "/usr/bin/sub2sing-box server --bind 127.0.0.1 --port 8080 & disown" root
 
 ######################install_fake_site#################################################################
 
@@ -956,7 +956,7 @@ sed -i -e "s|https://t.me/gozargah_marzban|$tg_escaped_link|g" -e "s|https://git
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
-(crontab -l 2>/dev/null; echo '@reboot /usr/bin/sub2sing-box server > /dev/null 2>&1') | crontab -
+(crontab -l 2>/dev/null; echo '@reboot /usr/bin/sub2sing-box server --bind 127.0.0.1 --port 8080 > /dev/null 2>&1') | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
 (crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
