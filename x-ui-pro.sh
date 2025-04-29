@@ -136,7 +136,9 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
+
 	$Pak -y install curl wget jq bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
+
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
