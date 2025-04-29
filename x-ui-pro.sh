@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #################### x-ui-pro v2.4.3 @ github.com/GFW4Fun ##############################################
 [[ $EUID -ne 0 ]] && echo "not root!" && sudo su -
@@ -9,7 +10,7 @@ echo;msg_inf '           ___    _   _   _  '	;
 msg_inf		 ' \/ __ | |  | __ |_) |_) / \ '	;
 msg_inf		 ' /\    |_| _|_   |   | \ \_/ '	; echo
 ##################################Variables#############################################################
-XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n"
+XUIDB="/etc/x-ui/x-ui.db";domain="";UNINSTALL="x";INSTALL="n";PNLNUM=1;CFALLOW="n";CLASH=0;CUSTOMWEBSUB=0
 Pak=$(type apt &>/dev/null && echo "apt" || echo "yum")
 systemctl stop x-ui
 rm -rf /etc/systemd/system/x-ui.service
@@ -42,11 +43,14 @@ make_port() {
 }
 sub_port=$(make_port)
 panel_port=$(make_port)
+web_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+sub2singbox_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 ws_port=$(make_port)
 ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+xhttp_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 
 ##################################Random Port and Path #################################################
 #RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
@@ -66,6 +70,8 @@ while [ "$#" -gt 0 ]; do
     -subdomain) domain="$2"; shift 2;;
     -reality_domain) reality_domain="$2"; shift 2;;
     -ONLY_CF_IP_ALLOW) CFALLOW="$2"; shift 2;;
+    -websub) CUSTOMWEBSUB="$2"; shift 2;;
+    -clash) CLASH="$2"; shift 2;;
     -uninstall) UNINSTALL="$2"; shift 2;;
     *) shift 1;;
   esac
@@ -130,7 +136,9 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
-	$Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 ufw
+
+	$Pak -y install curl wget jq bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
+
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -271,6 +279,29 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
+  	#sub2sing-box
+	location /${sub2singbox_path}/ {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:8080/;
+		}
+    # Path to open clash.yaml and generate YAML
+    location ~ ^/${web_path}/clashmeta/(.+)$ {
+        default_type text/plain;
+        ssi on;
+        ssi_types text/plain;
+        set \$subid \$1;
+        root /var/www/subpage;
+        try_files /clash.yaml =404;
+    }
+    # web
+    location ~ ^/${web_path} {
+        root /var/www/subpage;
+        index index.html;
+        try_files \$uri \$uri/ /index.html =404;
+    }
  	#Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
@@ -309,6 +340,20 @@ server {
                 proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
+        #XHTTP
+        location /${xhttp_path} {
+          grpc_pass grpc://unix:/dev/shm/uds2023.sock;
+          grpc_buffer_size         16k;
+          grpc_socket_keepalive    on;
+          grpc_read_timeout        1h;
+          grpc_send_timeout        1h;
+          grpc_set_header Connection         "";
+          grpc_set_header X-Forwarded-For    \$proxy_add_x_forwarded_for;
+          grpc_set_header X-Forwarded-Proto  \$scheme;
+          grpc_set_header X-Forwarded-Port   \$server_port;
+          grpc_set_header Host               \$host;
+          grpc_set_header X-Forwarded-Host   \$host;
+          }
  	#Xray Config Path
 	location ~ ^/(?<fwdport>\d+)/(?<fwdpath>.*)\$ {
 	$CF_IP	if (\$cloudflare_ip != 1) {return 404;}
@@ -382,6 +427,29 @@ server {
 		proxy_pass http://127.0.0.1:${panel_port};
 		break;
 	}
+  	#sub2sing-box
+	location /${sub2singbox_path}/ {
+		proxy_redirect off;
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_pass http://127.0.0.1:8080/;
+		}
+    # Path to open clash.yaml and generate YAML
+    location ~ ^/${web_path}/clashmeta/(.+)$ {
+        default_type text/plain;
+        ssi on;
+        ssi_types text/plain;
+        set \$subid \$1;
+        root /var/www/subpage;
+        try_files /clash.yaml =404;
+    }
+    # web
+    location ~ ^/${web_path} {
+        root /var/www/subpage;
+        index index.html;
+        try_files \$uri \$uri/ /index.html =404;
+    }
  	#Subscription Path (simple/encode)
         location /${sub_path} {
                 if (\$hack = 1) {return 404;}
@@ -420,6 +488,20 @@ server {
                 proxy_pass http://127.0.0.1:${sub_port};
                 break;
         }
+        #XHTTP
+        location /${xhttp_path} {
+          grpc_pass grpc://unix:/dev/shm/uds2023.sock;
+          grpc_buffer_size         16k;
+          grpc_socket_keepalive    on;
+          grpc_read_timeout        1h;
+          grpc_send_timeout        1h;
+          grpc_set_header Connection         "";
+          grpc_set_header X-Forwarded-For    \$proxy_add_x_forwarded_for;
+          grpc_set_header X-Forwarded-Proto  \$scheme;
+          grpc_set_header X-Forwarded-Port   \$server_port;
+          grpc_set_header Host               \$host;
+          grpc_set_header X-Forwarded-Host   \$host;
+          }
  	#Xray Config Path
 	location ~ ^/(?<fwdport>\d+)/(?<fwdpath>.*)\$ {
 	$CF_IP	if (\$cloudflare_ip != 1) {return 404;}
@@ -476,7 +558,7 @@ fi
 
 ##############################generate uri's###########################################################
 sub_uri=https://${domain}/${sub_path}/
-json_uri=https://${domain}/${json_path}/
+json_uri=https://${domain}/${web_path}?name=
 ##############################generate keys###########################################################
 shor=($(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8) $(openssl rand -hex 8))
 
@@ -488,8 +570,10 @@ if [[ -f $XUIDB ]]; then
         var2=($var1)
         private_key=${var2[2]}
         public_key=${var2[5]}
-	client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         client_id2=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
+        emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
        	sqlite3 $XUIDB <<EOF
              UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
@@ -538,7 +622,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'reality',
+             '${emoji_flag} reality',
 	     '1',
              '0',
 	     '',
@@ -631,7 +715,7 @@ if [[ -f $XUIDB ]]; then
 	     '0',
              '0',
 	     '0',
-             'vless_ws',
+             '${emoji_flag} ws',
 	     '1',
              '0',
 	     '',
@@ -690,6 +774,92 @@ if [[ -f $XUIDB ]]; then
   "concurrency": 3
 }'
 	     );
+      INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES ( 
+             '1',
+	     '0',
+             '0',
+	     '0',
+             '${emoji_flag} xhttp',
+	     '1',
+             '0',
+	     '/dev/shm/uds2023.sock,0666',
+             '0',
+	     'vless',
+             '{
+  "clients": [
+    {
+      "id": "${client_id3}",
+      "flow": "",
+      "email": "firstX",
+      "limitIp": 0,
+      "totalGB": 0,
+      "expiryTime": 0,
+      "enable": true,
+      "tgId": "",
+      "subId": "first",
+      "reset": 0
+    }
+  ],
+  "decryption": "none",
+  "fallbacks": []
+}','{
+  "network": "xhttp",
+  "security": "none",
+  "externalProxy": [
+    {
+      "forceTls": "tls",
+      "dest": "${domain}",
+      "port": 443,
+      "remark": ""
+    }
+  ],
+  "xhttpSettings": {
+    "path": "/${xhttp_path}",
+    "host": "",
+    "headers": {},
+    "scMaxBufferedPosts": 30,
+    "scMaxEachPostBytes": "1000000",
+    "noSSEHeader": false,
+    "xPaddingBytes": "100-1000",
+    "mode": "packet-up"
+  },
+  "sockopt": {
+    "acceptProxyProtocol": false,
+    "tcpFastOpen": true,
+    "mark": 0,
+    "tproxy": "off",
+    "tcpMptcp": true,
+    "tcpNoDelay": true,
+    "domainStrategy": "UseIP",
+    "tcpMaxSeg": 1440,
+    "dialerProxy": "",
+    "tcpKeepAliveInterval": 0,
+    "tcpKeepAliveIdle": 300,
+    "tcpUserTimeout": 10000,
+    "tcpcongestion": "bbr",
+    "V6Only": false,
+    "tcpWindowClamp": 600,
+    "interface": ""
+  }
+}',
+             'inbound-/dev/shm/uds2023.sock,0666:0|',
+	     '{
+  "enabled": true,
+  "destOverride": [
+    "http",
+    "tls",
+    "quic",
+    "fakedns"
+  ],
+  "metadataOnly": false,
+  "routeOnly": false
+}',
+'{
+  "strategy": "always",
+  "refresh": 5,
+  "concurrency": 3
+}'
+	     );
 EOF
 x-ui start
 else
@@ -730,18 +900,65 @@ echo "net.ipv4.tcp_wmem = 4096 65536 16777216" | tee -a /etc/sysctl.conf
 sysctl -p
 
 
+######################install_sub2sing-box#################################################################
 
-
-
-
+if pgrep -x "sub2sing-box" > /dev/null; then
+    echo "kill sub2sing-box..."
+    pkill -x "sub2sing-box"
+fi
+if [ -f "/usr/bin/sub2sing-box" ]; then
+    echo "delete sub2sing-box..."
+    rm -f /usr/bin/sub2sing-box
+fi
+wget -P /root/ https://github.com/legiz-ru/sub2sing-box/releases/download/v0.0.9/sub2sing-box_0.0.9_linux_amd64.tar.gz
+tar -xvzf /root/sub2sing-box_0.0.9_linux_amd64.tar.gz -C /root/ --strip-components=1 sub2sing-box_0.0.9_linux_amd64/sub2sing-box
+mv /root/sub2sing-box /usr/bin/
+chmod +x /usr/bin/sub2sing-box
+rm /root/sub2sing-box_0.0.9_linux_amd64.tar.gz
+su -c "/usr/bin/sub2sing-box server --bind 127.0.0.1 --port 8080 & disown" root
 
 ######################install_fake_site#################################################################
 
 sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/refs/heads/master/randomfakehtml.sh)"
 
+######################install_web_sub_page##############################################################
+
+URL_SUB_PAGE=( "https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui.html"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/sub-3x-ui-classical.html"
+	)
+URL_CLASH_SUB=( "https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash.yaml"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_skrepysh.yaml"
+		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_fullproxy_without_ru.yaml"
+  		"https://github.com/legiz-ru/x-ui-pro/raw/master/clash/clash_refilter_ech.yaml"
+	)
+DEST_DIR_SUB_PAGE="/var/www/subpage"
+DEST_FILE_SUB_PAGE="$DEST_DIR_SUB_PAGE/index.html"
+DEST_FILE_CLASH_SUB="$DEST_DIR_SUB_PAGE/clash.yaml"
+
+sudo mkdir -p "$DEST_DIR_SUB_PAGE"
+
+sudo curl -L "${URL_CLASH_SUB[$CLASH]}" -o "$DEST_FILE_CLASH_SUB"
+sudo curl -L "${URL_SUB_PAGE[$CUSTOMWEBSUB]}" -o "$DEST_FILE_SUB_PAGE"
+
+sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_SUB_PAGE"
+sed -i "s/\${DOMAIN}/$domain/g" "$DEST_FILE_CLASH_SUB"
+sed -i "s#\${SUB_JSON_PATH}#$json_path#g" "$DEST_FILE_SUB_PAGE"
+sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_SUB_PAGE"
+sed -i "s#\${SUB_PATH}#$sub_path#g" "$DEST_FILE_CLASH_SUB"
+sed -i "s|sub.legiz.ru|$domain/$sub2singbox_path|g" "$DEST_FILE_SUB_PAGE"
+
+while true; do	
+	if [[ -n "$tg_escaped_link" ]]; then
+		break
+	fi
+	echo -en "Enter your support link for web sub page (example https://t.me/durov/ ): " && read tg_escaped_link
+done
+
+sed -i -e "s|https://t.me/gozargah_marzban|$tg_escaped_link|g" -e "s|https://github.com/Gozargah/Marzban#donation|$tg_escaped_link|g" "$DEST_FILE_SUB_PAGE"
 
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
+(crontab -l 2>/dev/null; echo '@reboot /usr/bin/sub2sing-box server --bind 127.0.0.1 --port 8080 > /dev/null 2>&1') | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
 (crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
@@ -773,6 +990,9 @@ if systemctl is-active --quiet x-ui; then clear
  	echo -n "Username:  " && sqlite3 $XUIDB 'SELECT "username" FROM users;'
 	echo -n "Password:  " && sqlite3 $XUIDB 'SELECT "password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  msg_inf "Web Sub Page your first client: https://${domain}/${web_path}?name=first\n"
+  msg_inf "Your local sub2sing-box instance: https://${domain}/$sub2singbox_path/\n"
+  msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	msg_inf "Please Save this Screen!!"	
 else
 	nginx -t && printf '0\n' | x-ui | grep --color=never -i ':'
