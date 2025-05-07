@@ -998,4 +998,5 @@ else
 	nginx -t && printf '0\n' | x-ui | grep --color=never -i ':'
 	msg_err "sqlite and x-ui to be checked, try on a new clean linux! "
 fi
+UPDATE_XUIDB
 #################################################N-joy##################################################
