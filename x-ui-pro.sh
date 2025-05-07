@@ -575,7 +575,7 @@ if [[ -f $XUIDB ]]; then
         client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
        	sqlite3 $XUIDB <<EOF
-	     INSERT INTO "settings" ("key", "value") VALUES ("webPort",  '${panel_port}');
+	     UPDATE settings SET value = '/${panel_port}/' WHERE key = 'webPort';
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
              INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
@@ -872,7 +872,7 @@ if systemctl is-active --quiet x-ui; then
 	x-ui restart
 else
 	PANEL=( "https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh"
-			"https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh"
+			"https://raw.githubusercontent.com/MHSanaei/3x-ui/refs/tags/v2.5.8/install.sh"
 			"https://raw.githubusercontent.com/FranzKafkaYu/x-ui/master/install_en.sh"
 		)
 
