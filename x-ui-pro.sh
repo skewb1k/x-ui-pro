@@ -575,7 +575,7 @@ if [[ -f $XUIDB ]]; then
         client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
        	sqlite3 $XUIDB <<EOF
-             UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
+	     INSERT INTO "settings" ("key", "value") VALUES ("webPort",  '${panel_port}');
              UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
              INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
@@ -998,5 +998,4 @@ else
 	nginx -t && printf '0\n' | x-ui | grep --color=never -i ':'
 	msg_err "sqlite and x-ui to be checked, try on a new clean linux! "
 fi
-UPDATE_XUIDB
 #################################################N-joy##################################################
