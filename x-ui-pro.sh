@@ -865,7 +865,7 @@ if [[ -f $XUIDB ]]; then
 }'
 	     );
 EOF
-/usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" -port "${panel_port}" -webBasePath "${web_path}"
+/usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" -port "${panel_port}" -webBasePath "${panel_path}"
 x-ui start
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;
