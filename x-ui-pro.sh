@@ -26,6 +26,11 @@ get_port() {
 	echo $(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
 }
 
+gen_random_string() {
+    local length="$1"
+    local random_string=$(LC_ALL=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$length" | head -n 1)
+    echo "$random_string"
+}
 check_free() {
 	local port=$1
 	nc -z 127.0.0.1 $port &>/dev/null
@@ -49,9 +54,10 @@ sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 ws_port=$(make_port)
-ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")web_path
 xhttp_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-
+config_username=$(gen_random_string 10)
+config_password=$(gen_random_string 10)
 ##################################Random Port and Path #################################################
 #RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
 #while true; do 
@@ -575,8 +581,6 @@ if [[ -f $XUIDB ]]; then
         client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
         emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
        	sqlite3 $XUIDB <<EOF
-	     UPDATE settings SET value = '${panel_port}' WHERE key = 'webPort';
-             UPDATE settings SET value = '/${panel_path}/' WHERE key = 'webBasePath';
              INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
 	     INSERT INTO "settings" ("key", "value") VALUES ("subURI",  '${sub_uri}');
@@ -861,6 +865,7 @@ if [[ -f $XUIDB ]]; then
 }'
 	     );
 EOF
+/usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" -port "${panel_port}" -webBasePath "${web_path}"
 x-ui start
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;
@@ -987,8 +992,8 @@ if systemctl is-active --quiet x-ui; then clear
 
  msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	msg_inf "X-UI Secure Panel: https://${domain}/${panel_path}/\n"
- 	echo -n "Username:  " && sqlite3 $XUIDB 'SELECT "username" FROM users;'
-	echo -n "Password:  " && sqlite3 $XUIDB 'SELECT "password" FROM users;'
+ 	echo -n "Username:  ${config_username}" 
+	echo -n "Password:  ${config_password}" 
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 #  msg_inf "Web Sub Page your first client: https://${domain}/${web_path}?name=first\n"
 #  msg_inf "Your local sub2sing-box instance: https://${domain}/$sub2singbox_path/\n"
