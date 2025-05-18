@@ -992,8 +992,8 @@ if systemctl is-active --quiet x-ui; then clear
 
  msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	msg_inf "X-UI Secure Panel: https://${domain}/${panel_path}/\n"
- 	echo -n "Username:  ${config_username}\n" 
-	echo -n "Password:  ${config_password}\n" 
+ 	echo -e "Username:  ${config_username} \n" 
+	echo -e "Password:  ${config_password} \n" 
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 #  msg_inf "Web Sub Page your first client: https://${domain}/${web_path}?name=first\n"
 #  msg_inf "Your local sub2sing-box instance: https://${domain}/$sub2singbox_path/\n"
