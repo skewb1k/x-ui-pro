@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #################### x-ui-pro v2.4.3 @ github.com/GFW4Fun ##############################################
 [[ $EUID -ne 0 ]] && echo "not root!" && sudo su -
 ##############################INFO######################################################################
@@ -19,13 +19,17 @@ PNLNUM=1
 CFALLOW="n"
 CLASH=0
 CUSTOMWEBSUB=0
+
 systemctl stop x-ui
 rm -rf /etc/systemd/system/x-ui.service
 rm -rf /usr/local/x-ui
 rm -rf /etc/x-ui
-# rm -rf /etc/nginx/sites-enabled/*
-# rm -rf /etc/nginx/sites-available/*
-# rm -rf /etc/nginx/stream-enabled/*
+mkdir -p /etc/nginx/sites-enabled
+mkdir -p /etc/nginx/sites-available
+mkdir -p /etc/nginx/stream-enabled
+rm -rf /etc/nginx/sites-enabled/*
+rm -rf /etc/nginx/sites-available/*
+rm -rf /etc/nginx/stream-enabled/*
 
 ##################################generate ports and paths#############################################################
 get_port() {
@@ -152,7 +156,7 @@ ufw disable
 if [[ ${INSTALL} == *"y"* ]]; then
 	pacman -Syu
 
-	pacman -S curl wget jq bash sudo nginx-mod-stream certbot certbot-nginx sqlite3 ufw
+	pacman -S curl wget jq bash sudo nginx-mainline nginx-mainline-mod-stream nginx-mainline-mod-geoip certbot certbot-nginx sqlite3 ufw
 
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
@@ -178,30 +182,30 @@ if [[ ! -d "/etc/letsencrypt/live/${reality_domain}/" ]]; then
 	msg_err "$reality_domain SSL could not be generated! Check Domain/IP Or Enter new domain!" && exit 1
 fi
 ################################# Access to configs only with cloudflare#################################
-rm -f "/etc/nginx/cloudflareips.sh"
-cat <<'EOF' >>/etc/nginx/cloudflareips.sh
-#!/bin/bash
-rm -f "/etc/nginx/conf.d/cloudflare_real_ips.conf" "/etc/nginx/conf.d/cloudflare_whitelist.conf"
-CLOUDFLARE_REAL_IPS_PATH=/etc/nginx/conf.d/cloudflare_real_ips.conf
-CLOUDFLARE_WHITELIST_PATH=/etc/nginx/conf.d/cloudflare_whitelist.conf
-echo "geo \$realip_remote_addr \$cloudflare_ip {
-	default 0;" >> $CLOUDFLARE_WHITELIST_PATH
-for type in v4 v6; do
-	echo "# IP$type"
-	for ip in `curl https://www.cloudflare.com/ips-$type`; do
-		echo "set_real_ip_from $ip;" >> $CLOUDFLARE_REAL_IPS_PATH;
-		echo "	$ip 1;" >> $CLOUDFLARE_WHITELIST_PATH;
-	done
-done
-echo "real_ip_header X-Forwarded-For;" >> $CLOUDFLARE_REAL_IPS_PATH
-echo "}" >> $CLOUDFLARE_WHITELIST_PATH
-EOF
-sudo bash "/etc/nginx/cloudflareips.sh" >/dev/null 2>&1
-if [[ ${CFALLOW} == *"y"* ]]; then
-	CF_IP=""
-else
-	CF_IP="#"
-fi
+# rm -f "/etc/nginx/cloudflareips.sh"
+# cat <<'EOF' >>/etc/nginx/cloudflareips.sh
+# #!/bin/bash
+# rm -f "/etc/nginx/conf.d/cloudflare_real_ips.conf" "/etc/nginx/conf.d/cloudflare_whitelist.conf"
+# CLOUDFLARE_REAL_IPS_PATH=/etc/nginx/conf.d/cloudflare_real_ips.conf
+# CLOUDFLARE_WHITELIST_PATH=/etc/nginx/conf.d/cloudflare_whitelist.conf
+# echo "geo \$realip_remote_addr \$cloudflare_ip {
+# 	default 0;" >> $CLOUDFLARE_WHITELIST_PATH
+# for type in v4 v6; do
+# 	echo "# IP$type"
+# 	for ip in `curl https://www.cloudflare.com/ips-$type`; do
+# 		echo "set_real_ip_from $ip;" >> $CLOUDFLARE_REAL_IPS_PATH;
+# 		echo "	$ip 1;" >> $CLOUDFLARE_WHITELIST_PATH;
+# 	done
+# done
+# echo "real_ip_header X-Forwarded-For;" >> $CLOUDFLARE_REAL_IPS_PATH
+# echo "}" >> $CLOUDFLARE_WHITELIST_PATH
+# EOF
+# sudo bash "/etc/nginx/cloudflareips.sh" >/dev/null 2>&1
+# if [[ ${CFALLOW} == *"y"* ]]; then
+# 	CF_IP=""
+# else
+# 	CF_IP="#"
+# fi
 ###################################Get Installed XUI Port/Path##########################################
 if [[ -f $XUIDB ]]; then
 	XUIPORT=$(sqlite3 -list $XUIDB 'SELECT "value" FROM settings WHERE "key"="webPort" LIMIT 1;' 2>&1)
@@ -210,8 +214,8 @@ if [[ -f $XUIDB ]]; then
 		PORT=$XUIPORT
 		sqlite3 $XUIDB <<EOF
 	DELETE FROM "settings" WHERE ( "key"="webCertFile" ) OR ( "key"="webKeyFile" );
-	INSERT INTO "settings" ("key", "value") VALUES ("webCertFile",  "");
-	INSERT INTO "settings" ("key", "value") VALUES ("webKeyFile", "");
+	INSERT INTO "settings" ("key", "value") VALUES ('webCertFile',  '');
+	INSERT INTO "settings" ("key", "value") VALUES ('webKeyFile', '');
 EOF
 	fi
 fi
@@ -244,8 +248,6 @@ server {
 EOF
 
 grep -xqFR "stream { include /etc/nginx/stream-enabled/*.conf; }" /etc/nginx/* || echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >>/etc/nginx/nginx.conf
-grep -xqFR "load_module modules/ngx_stream_module.so;" /etc/nginx/* || sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_module.so; /' /etc/nginx/nginx.conf
-grep -xqFR "load_module modules/ngx_stream_geoip2_module.so;" /etc/nginx* || sed -i '2s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_geoip2_module.so; /' /etc/nginx/nginx.conf
 grep -xqFR "worker_rlimit_nofile 16384;" /etc/nginx/* || echo "worker_rlimit_nofile 16384;" >>/etc/nginx/nginx.conf
 sed -i "/worker_connections/c\worker_connections 4096;" /etc/nginx/nginx.conf
 cat >"/etc/nginx/sites-available/80.conf" <<EOF
@@ -369,8 +371,7 @@ server {
           }
  	#Xray Config Path
 	location ~ ^/(?<fwdport>\d+)/(?<fwdpath>.*)\$ {
-	$CF_IP	if (\$cloudflare_ip != 1) {return 404;}
-		if (\$hack = 1) {return 404;}
+	$CF_IP  if (\$hack = 1) {return 404;}
 		client_max_body_size 0;
 		client_body_timeout 1d;
 		grpc_read_timeout 1d;
@@ -517,8 +518,7 @@ server {
           }
  	#Xray Config Path
 	location ~ ^/(?<fwdport>\d+)/(?<fwdpath>.*)\$ {
-	$CF_IP	if (\$cloudflare_ip != 1) {return 404;}
-		if (\$hack = 1) {return 404;}
+	$CF_IP if (\$hack = 1) {return 404;}
 		client_max_body_size 0;
 		client_body_timeout 1d;
 		grpc_read_timeout 1d;
@@ -579,7 +579,7 @@ UPDATE_XUIDB() {
 	if [[ -f $XUIDB ]]; then
 		x-ui stop
 		var1=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519)
-		var2="$var1"
+		var2=($var1)
 		private_key=${var2[2]}
 		public_key=${var2[5]}
 		client_id=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
@@ -587,44 +587,44 @@ UPDATE_XUIDB() {
 		client_id3=$(/usr/local/x-ui/bin/xray-linux-amd64 uuid)
 		emoji_flag=$(LC_ALL=en_US.UTF-8 curl -s https://ipwho.is/ | jq -r '.flag.emoji')
 		sqlite3 $XUIDB <<EOF
-             INSERT INTO "settings" ("key", "value") VALUES ("subPort",  '${sub_port}');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subPath",  '${sub_path}');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subURI",  '${sub_uri}');
-             INSERT INTO "settings" ("key", "value") VALUES ("subJsonPath",  '${json_path}');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonURI",  '${json_uri}');
-             INSERT INTO "settings" ("key", "value") VALUES ("subEnable",  'true');
-             INSERT INTO "settings" ("key", "value") VALUES ("webListen",  '');
-	     INSERT INTO "settings" ("key", "value") VALUES ("webDomain",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("webCertFile",  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('subPort',  '${sub_port}');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subPath',  '${sub_path}');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subURI',  '${sub_uri}');
+             INSERT INTO "settings" ("key", "value") VALUES ('subJsonPath',  '${json_path}');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subJsonURI',  '${json_uri}');
+             INSERT INTO "settings" ("key", "value") VALUES ('subEnable',  'true');
+             INSERT INTO "settings" ("key", "value") VALUES ('webListen',  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ('webDomain',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('webCertFile',  '');
 	     INSERT INTO "settings" ("key", "value") VALUES ("webKeyFile",  '');
-      	     INSERT INTO "settings" ("key", "value") VALUES ("sessionMaxAge",  '60');
-             INSERT INTO "settings" ("key", "value") VALUES ("pageSize",  '50');
-             INSERT INTO "settings" ("key", "value") VALUES ("expireDiff",  '0');
-             INSERT INTO "settings" ("key", "value") VALUES ("trafficDiff",  '0');
-             INSERT INTO "settings" ("key", "value") VALUES ("remarkModel",  '-ieo');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgBotEnable",  'false');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgBotToken",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgBotProxy",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgBotAPIServer",  '');
-	     INSERT INTO "settings" ("key", "value") VALUES ("tgBotChatId",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgRunTime",  '@daily');
-	     INSERT INTO "settings" ("key", "value") VALUES ("tgBotBackup",  'false');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgBotLoginNotify",  'true');
-	     INSERT INTO "settings" ("key", "value") VALUES ("tgCpu",  '80');
-             INSERT INTO "settings" ("key", "value") VALUES ("tgLang",  'en-US');
-	     INSERT INTO "settings" ("key", "value") VALUES ("timeLocation",  'Europe/Moscow');
-             INSERT INTO "settings" ("key", "value") VALUES ("secretEnable",  'false');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subDomain",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("subCertFile",  '');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subKeyFile",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("subUpdates",  '12');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subEncrypt",  'true');
-             INSERT INTO "settings" ("key", "value") VALUES ("subShowInfo",  'true');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonFragment",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("subJsonNoises",  '');
-	     INSERT INTO "settings" ("key", "value") VALUES ("subJsonMux",  '');
-             INSERT INTO "settings" ("key", "value") VALUES ("subJsonRules",  '');
-	     INSERT INTO "settings" ("key", "value") VALUES ("datepicker",  'gregorian');
+      	     INSERT INTO "settings" ("key", "value") VALUES ('sessionMaxAge',  '60');
+             INSERT INTO "settings" ("key", "value") VALUES ('pageSize',  '50');
+             INSERT INTO "settings" ("key", "value") VALUES ('expireDiff',  '0');
+             INSERT INTO "settings" ("key", "value") VALUES ('trafficDiff',  '0');
+             INSERT INTO "settings" ("key", "value") VALUES ('remarkModel',  '-ieo');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgBotEnable',  'false');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgBotToken',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgBotProxy',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgBotAPIServer',  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ('tgBotChatId',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgRunTime',  '@daily');
+	     INSERT INTO "settings" ("key", "value") VALUES ('tgBotBackup',  'false');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgBotLoginNotify',  'true');
+	     INSERT INTO "settings" ("key", "value") VALUES ('tgCpu',  '80');
+             INSERT INTO "settings" ("key", "value") VALUES ('tgLang',  'en-US');
+	     INSERT INTO "settings" ("key", "value") VALUES ('timeLocation',  'Europe/Moscow');
+             INSERT INTO "settings" ("key", "value") VALUES ('secretEnable',  'false');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subDomain',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('subCertFile',  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subKeyFile',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('subUpdates',  '12');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subEncrypt',  'true');
+             INSERT INTO "settings" ("key", "value") VALUES ('subShowInfo',  'true');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subJsonFragment',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('subJsonNoises',  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ('subJsonMux',  '');
+             INSERT INTO "settings" ("key", "value") VALUES ('subJsonRules',  '');
+	     INSERT INTO "settings" ("key", "value") VALUES ('datepicker',  'gregorian');
              INSERT INTO "client_traffics" ("inbound_id","enable","email","up","down","expiry_time","total","reset") VALUES ('1','1','first','0','0','0','0','0');
 	     INSERT INTO "client_traffics" ("inbound_id","enable","email","up","down","expiry_time","total","reset") VALUES ('2','1','first_1','0','0','0','0','0');
              INSERT INTO "inbounds" ("user_id","up","down","total","remark","enable","expiry_time","listen","port","protocol","settings","stream_settings","tag","sniffing","allocate") VALUES (
@@ -871,7 +871,6 @@ UPDATE_XUIDB() {
 }'
 	     );
 EOF
-		x-ui setting -username "${config_username}" -password "${config_password}" -port "${panel_port}" -webBasePath "${panel_path}"
 		x-ui start
 	else
 		msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1

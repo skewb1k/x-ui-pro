@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ### https://github.com/GFW4Fun
 Green="\033[32m"
 Red="\033[31m"
@@ -7,11 +7,11 @@ Blue="\033[36m"
 Font="\033[0m"
 OK="${Green}[OK]${Font}"
 ERROR="${Red}[ERROR]${Font}"
-function msg_inf() {  echo -e "${Blue} $1 ${Font}"; }
+function msg_inf() { echo -e "${Blue} $1 ${Font}"; }
 function msg_ok() { echo -e "${OK} ${Blue} $1 ${Font}"; }
 function msg_err() { echo -e "${ERROR} ${Yellow} $1 ${Font}"; }
 ###################################
-apt install unzip -y
+pacman -S unzip
 cd $HOME
 if [[ -d "randomfakehtml-master" ]]; then
 	cd randomfakehtml-master
@@ -24,11 +24,14 @@ else
 fi
 ###################################
 #RandomHTML=$(for i in *; do echo "$i"; done | shuf -n1 2>&1)
-RandomHTML=$(a=(*); echo ${a[$((RANDOM % ${#a[@]}))]} 2>&1)
+RandomHTML=$(
+	a=(*)
+	echo ${a[$((RANDOM % ${#a[@]}))]} 2>&1
+)
 msg_inf "Random template name: ${RandomHTML}"
 #################################
 if [[ -d "${RandomHTML}" && -d "/var/www/html/" ]]; then
-	rm -rf /var/www/html/*
+	# rm -rf /var/www/html/*
 	cp -a ${RandomHTML}/. "/var/www/html/"
 	msg_ok "Template extracted successfully!"
 else
